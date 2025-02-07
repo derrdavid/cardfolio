@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Flex, Grid, List, Row, Typography, theme } from "antd";
-import './Home.css';
+import { Card, Col, Flex, Grid, Image, List, Row, Typography, theme } from "antd";
 import { fetchSets } from '../Services/pokemon_tcg_service';
+import './Home.css';
 
 const Home = () => {
   const [sets, setSets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchSets('orderBy=-releaseDate&pageSize=6').then((data) => {
       setSets(data.data);
-    });
+    }).then(() => setLoading(false));
   }, []);
 
   const { Title, Text } = Typography;
@@ -59,9 +61,9 @@ const Home = () => {
           renderItem={(item) => (
             <List.Item>
               <Card
+                loading={loading}
                 className='set-card'
                 hoverable
-                title={item.name}
                 extra={
                   <img
                     src={item.images.symbol}
@@ -71,14 +73,18 @@ const Home = () => {
                   />
                 }
                 cover={
-                  <img
+                  <Image
+                    loading={loading}
                     src={item.images.logo}
                     alt="logo"
-                    height={'50%'}
-                    style={{ aspectRatio: '2/1', objectFit: 'cover' }}
+                    preview={false}
+                    width={'100%'}
+                    style={{ aspectRatio: '2/1', objectFit: 'contain' }}
                   />
                 }
-              />
+              >
+                <Card.Meta title={item.name} />
+                </Card>
             </List.Item>
           )}
         />

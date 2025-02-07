@@ -20,22 +20,13 @@
 
 .quick-actions-section .card {
   flex: 1;
-  transition: border-color 0.3s;
-}
-
-.quick-actions-section .card:hover {
-  border: 1px solid #4096ff;
 }
 
 .quick-actions-section .card .ant-card-head{
   border-bottom: 0;
 }
 
-.set-card .ant-card-head,
-.set-card .ant-card-body {
-  background: #000000;
-  color: white;
-}
+
 .set-card {
   transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }

@@ -1,9 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import Nav from './Components/Nav';
 import Home from './Routes/Home';
-import { ConfigProvider, Layout } from 'antd';
+import { Card, ConfigProvider, Layout } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
 import { fetchSets } from './Services/pokemon_tcg_service';
+import CardDetail from './Routes/CardDetail';
 function App() {
 
     return (
@@ -37,7 +38,7 @@ function App() {
                 >
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/favourites" />
+                        <Route path="/card" element={<CardDetail />} />
                         <Route path="/cart" />
                     </Routes>
                 </Content>
