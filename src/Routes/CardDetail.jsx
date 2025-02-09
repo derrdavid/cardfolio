@@ -1,40 +1,84 @@
-import React from 'react';
-import { Layout, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Typography, Button, Divider, Table, Spin, Image, Grid, Flex, List, Descriptions } from 'antd';
+import { fetchCards } from '../Services/pokemon_tcg_service'; // Stelle sicher, dass diese Funktion existiert
 import './CardDetail.css';
+import ButtonGroup from 'antd/es/button/button-group';
 
-const { Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
-const CardDetail = () => {
+const CardDetails = () => {
+    const { id } = useParams();
+    const [card, setCard] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchCards(`${id}`).then((data) => {
+            setCard(data.data);
+        }).then(() => setLoading(false));
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="card-details-container">
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!card) {
+        return (
+            <div className="card-details-container">
+                <Text type="danger">Karte nicht gefunden</Text>
+            </div>
+        );
+    }
+
     return (
-        <Layout className="dashboard-body-layout">
-            <Content className="dashboard-body-content">
-                <div className="dashboard-stats">
-                    <div className="stat-card">
-                        <Title level={4}>Estimated Collection Value</Title>
-                        <div className="stat-number">$2,750</div>
-                        <div className="stat-trend positive">
-                            <span className="trend-icon">⬆</span>
-                            <span>+12.5% from last month</span>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <Title level={4}>Total Cards</Title>
-                        <div className="stat-number">3,245</div>
-                        <div className="stat-info">145 new cards this month</div>
-                    </div>
-                    <div className="stat-card">
-                        <Title level={4}>Unique Sets</Title>
-                        <div className="stat-number">48</div>
-                        <div className="stat-info">Last updated: 2 days ago</div>
-                    </div>
-                </div>
-                <div className="dashboard-chart">
-                    <div className="chart-placeholder">Chart Placeholder</div>
-                </div>
-            </Content>
-        </Layout>
+        <div>
+            {/* Breadcrumbs */}
+            <div className="breadcrumbs">
+                <Text type="secondary">
+                    <a href="#">Home</a> / <a href="#">Portfolio</a> / <span>Pokemon</span>
+                </Text>
+            </div>
+            <Divider />
+            {/* Card Title */}
+            <Title level={1}><span>{card.name} <Text level={2} type='secondary'>{card.set.ptcgoCode + " " + card.number}</Text></span></Title>
+            {/* Card Image */}
+            <Flex gap="middle" justify="left">
+                <Image src={card.images.large} preview={false} width={300} />
+                <Flex gap="middle" vertical style={{ width: '25%' }}>
+                    <List bordered>
+                        <List.Item>
+                            <Text>{"Nr."}</Text>
+                            <Text strong>{card.number}</Text>
+                        </List.Item>
+                        <List.Item>
+                            <Text>{"Name"}</Text>
+                            <Text strong>{card.name}</Text>
+                        </List.Item>
+                        <List.Item >
+                            <Text>{"Rarity"}</Text>
+                            <Text strong>{card.rarity}</Text>
+                        </List.Item>
+                        <List.Item >
+                            <Text>{"Set"}</Text>
+                            <Text strong>{card.set.name}</Text>
+                        </List.Item>
+                        <List.Item >
+                            <Text>{"Release"}</Text>
+                            <Text strong>{card.set.releaseDate}</Text>
+                        </List.Item>
+                    </List>
+                    <Flex gap="middle" horizontal style={{}}>
+                        <Button color='bl' type='primary' size='large' style={{ width: '50%' }}>Add</Button>
+                        <Button size='large' style={{ width: '50%' }}>Buy</Button>
+                    </Flex>
+                </Flex>
+            </Flex>
+        </div>
     );
 };
 
-export default CardDetail;
+export default CardDetails;

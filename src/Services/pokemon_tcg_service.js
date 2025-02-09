@@ -20,4 +20,25 @@ export const fetchSets = async (queryParams = '') => {
     throw error;
   }
 };
-// Weitere API-Funktionen können hier hinzugefügt werden.
+
+export const fetchCards = async (queryParams = '') => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cards/${queryParams}`, {
+        method: 'GET',
+        headers: {
+            'X-Api-Key': import.meta.env.TCG_API_KEY
+        },
+    });
+
+    
+    if (!response.ok) {
+      throw new Error('Fehler beim Abrufen der Daten');
+    }
+    const data = await response.json();
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.error('fetchCards error:', error);
+    throw error;
+  }
+};

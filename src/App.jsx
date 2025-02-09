@@ -38,7 +38,7 @@ function App() {
                 >
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/card" element={<CardDetail />} />
+                        <Route path="/card/:id" element={<CardDetail />} />
                         <Route path="/cart" />
                     </Routes>
                 </Content>

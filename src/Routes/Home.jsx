@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Flex, Grid, Image, List, Row, Typography, theme } from "antd";
-import { fetchSets } from '../Services/pokemon_tcg_service';
+import { fetchCards, fetchSets } from '../Services/pokemon_tcg_service';
 import './Home.css';
+import { Router } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [sets, setSets] = useState([]);
+  const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSets('orderBy=-releaseDate&pageSize=6').then((data) => {
       setSets(data.data);
     }).then(() => setLoading(false));
+
+    fetchCards().then((data) => {
+      setCards(data.data);
+    });
   }, []);
 
   const { Title, Text } = Typography;
@@ -58,6 +66,7 @@ const Home = () => {
         <List
           grid={{ gutter: 16, column: 3 }}
           dataSource={sets}
+          key={sets.id}
           renderItem={(item) => (
             <List.Item>
               <Card
@@ -92,21 +101,19 @@ const Home = () => {
         <Title level={3}>Trending</Title>
         <List
           itemLayout="horizontal"
-          dataSource={sets}
+          dataSource={cards}
+          key={cards.id}
           renderItem={(item) => (
-            <List.Item>
+            <List.Item hoverable onClick={() => navigate(`/card/${item.id}`)}>
               <List.Item.Meta
-              /* Uncomment and style if images are needed like below:
               avatar={
                 <img
-                  src={item.imageUrl}
+                  src={item.images.small}
                   alt="Activity"
                   style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
                 />
               }
-              title={item.title}
-              description={item.description}
-              */
+              title={item.name}
               />
               <Text className={`activity-amount ${item.amountType}`}>{item.amount}</Text>
             </List.Item>
