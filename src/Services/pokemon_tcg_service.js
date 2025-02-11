@@ -23,7 +23,7 @@ export const fetchSets = async (queryParams = '') => {
 
 export const fetchCards = async (queryParams = '') => {
   try {
-    const response = await fetch(`${API_BASE_URL}/cards/${queryParams}`, {
+    const response = await fetch(`${API_BASE_URL}/cards${queryParams}`, {
         method: 'GET',
         headers: {
             'X-Api-Key': import.meta.env.TCG_API_KEY

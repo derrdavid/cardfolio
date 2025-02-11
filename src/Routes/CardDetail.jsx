@@ -13,7 +13,7 @@ const CardDetails = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchCards(`${id}`).then((data) => {
+        fetchCards(`/${id}`).then((data) => {
             setCard(data.data);
         }).then(() => setLoading(false));
     }, [id]);
@@ -47,7 +47,7 @@ const CardDetails = () => {
             <Title level={1}><span>{card.name} <Text level={2} type='secondary'>{card.set.ptcgoCode + " " + card.number}</Text></span></Title>
             {/* Card Image */}
             <Flex gap="middle" justify="left">
-                <Image src={card.images.large} preview={false} width={300} />
+                <Image src={card.images.large} preview={false} width={300} loading={loading} />
                 <Flex gap="middle" vertical style={{ width: '25%' }}>
                     <List bordered>
                         <List.Item>

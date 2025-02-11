@@ -15,11 +15,11 @@ const Home = () => {
   useEffect(() => {
     fetchSets('orderBy=-releaseDate&pageSize=6').then((data) => {
       setSets(data.data);
-    }).then(() => setLoading(false));
+    })
 
     fetchCards().then((data) => {
       setCards(data.data);
-    });
+    }).then(() => setLoading(false));
   }, []);
 
   const { Title, Text } = Typography;
@@ -77,6 +77,7 @@ const Home = () => {
 
         <Title level={3}>Trending</Title>
         <List
+          loading={loading}
           itemLayout="horizontal"
           dataSource={cards}
           key={cards.id}
