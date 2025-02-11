@@ -12,21 +12,21 @@ const Sets = () => {
   const [loading, setLoading] = useState(true);
   const [filteredSets, setFilteredSets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
+  const [filterType, setFilterType] = useState("name-asc");
   const [page, setPage] = useState(1); // Seitenzahl für die Paginierung
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     console.log(page)
-    fetchSets(`page=${page}&pageSize=9`).then((data) => {
+    fetchSets(`page=${page}`).then((data) => {
       // Wenn es keine Sets mehr gibt, setzen wir hasMore auf false
       if (data.data.length === 0) {
         setHasMore(false);
       } else {
-        setSets((prevSets) => [...prevSets, ...data.data]); // Neue Sets zu den bestehenden hinzufügen
+        setSets(data.data);
       }
     }).then(() => setLoading(false));
-  }, [page]);
+  }, []);
 
   // Handle search and filter
   useEffect(() => {
@@ -40,6 +40,18 @@ const Sets = () => {
       .sort((a, b) => {
         const aName = a.name.toLowerCase();
         const bName = b.name.toLowerCase();
+
+        if (filterType.includes("name")) {
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+          // Sortiere nach Namen (A-Z oder Z-A)
+          if (filterType === "name-asc") {
+            return aName.localeCompare(bName); // A-Z
+          } else if (filterType === "name-desc") {
+            return bName.localeCompare(aName); // Z-A
+          }
+        }
+
         // Ermittele, an welcher Stelle der Suchbegriff auftaucht:
         const aIndex = aName.indexOf(searchLower);
         const bIndex = bName.indexOf(searchLower);
@@ -92,9 +104,7 @@ const Sets = () => {
 
       <InfiniteScroll
         dataLength={filteredSets.length} // Anzahl der bisher geladenen Sets
-        next={loadMoreData} // Funktion, die beim Scrollen mehr Daten lädt
         hasMore={hasMore} // Flag, ob mehr Sets vorhanden sind
-        loader={<div>Loading...</div>} // Ladeanzeige
         endMessage={<p>No more sets to show.</p>} // Nachricht, wenn alle Sets geladen sind
       >
         <List
