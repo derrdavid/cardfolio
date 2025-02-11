@@ -4,6 +4,7 @@ import { fetchCards, fetchSets } from '../Services/pokemon_tcg_service';
 import './Home.css';
 import { Router } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import SetCard from '../Components/SetCard';
 
 const Home = () => {
   const [sets, setSets] = useState([]);
@@ -69,31 +70,7 @@ const Home = () => {
           key={sets.id}
           renderItem={(item) => (
             <List.Item>
-              <Card
-                loading={loading}
-                className='set-card'
-                hoverable
-                extra={
-                  <img
-                    src={item.images.symbol}
-                    alt="logo"
-                    width={30}
-                    style={{ objectFit: 'cover' }}
-                  />
-                }
-                cover={
-                  <Image
-                    loading={loading}
-                    src={item.images.logo}
-                    alt="logo"
-                    preview={false}
-                    width={'100%'}
-                    style={{ aspectRatio: '2/1', objectFit: 'contain' }}
-                  />
-                }
-              >
-                <Card.Meta title={item.name} />
-                </Card>
+              <SetCard loading={loading} item={item} />
             </List.Item>
           )}
         />
@@ -106,14 +83,14 @@ const Home = () => {
           renderItem={(item) => (
             <List.Item hoverable onClick={() => navigate(`/card/${item.id}`)}>
               <List.Item.Meta
-              avatar={
-                <img
-                  src={item.images.small}
-                  alt="Activity"
-                  style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-                />
-              }
-              title={item.name}
+                avatar={
+                  <img
+                    src={item.images.small}
+                    alt="Activity"
+                    style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                }
+                title={item.name}
               />
               <Text className={`activity-amount ${item.amountType}`}>{item.amount}</Text>
             </List.Item>

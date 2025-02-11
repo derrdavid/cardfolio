@@ -15,7 +15,7 @@ const DashboardHeader = () => {
                 <Space size='large'>
                     <Menu mode="horizontal" defaultSelectedKeys={['1']} style={{ borderBottom: 'none', width: '20vw', display: 'flex', justifyContent: 'center' }}>
                         <Menu.Item key="1" icon={<HomeFilled />} ><Link to="/">Home</Link></Menu.Item>
-                        <Menu.Item key="2" icon={<AppstoreFilled />}><Link to="/card">Sets</Link></Menu.Item>
+                        <Menu.Item key="2" icon={<AppstoreFilled />}><Link to="/sets">Sets</Link></Menu.Item>
                     </Menu>
                     <Avatar src="https://via.placeholder.com/40x40" style={{ width: 40, height: 40 }} />
                 </Space>
