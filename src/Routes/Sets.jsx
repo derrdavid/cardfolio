@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Input, Select, Row, Col, List, Flex } from "antd";
 import { fetchSets } from '../Services/pokemon_tcg_service';
 import SetCard from "../Components/SetCard";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -12,16 +13,23 @@ const Sets = () => {
   const [filteredSets, setFilteredSets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [page, setPage] = useState(1); // Seitenzahl für die Paginierung
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    fetchSets().then((data) => {
-      setSets(data.data);
+    console.log(page)
+    fetchSets(`page=${page}&pageSize=9`).then((data) => {
+      // Wenn es keine Sets mehr gibt, setzen wir hasMore auf false
+      if (data.data.length === 0) {
+        setHasMore(false);
+      } else {
+        setSets((prevSets) => [...prevSets, ...data.data]); // Neue Sets zu den bestehenden hinzufügen
+      }
     }).then(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   // Handle search and filter
   useEffect(() => {
-    console.log("HEy")
     const searchLower = searchTerm.toLowerCase();
     const filtered = sets
       .filter((set) => {
@@ -44,6 +52,13 @@ const Sets = () => {
       });
     setFilteredSets(filtered);
   }, [searchTerm, filterType, sets]);
+
+
+  const loadMoreData = () => {
+    if (hasMore) {
+      setPage(page + 1); // Lade die nächste Seite
+    }
+  };
 
   return (
     <Flex vertical gap="large">
@@ -75,17 +90,25 @@ const Sets = () => {
 
       </Flex>
 
-      <List
-        loading={loading}
-        grid={{ gutter: 16, column: 3 }}
-        dataSource={filteredSets}
-        key={filteredSets.id}
-        renderItem={(item) => (
-          <List.Item>
-            <SetCard loading={loading} item={item} />
-          </List.Item>
-        )}
-      />
+      <InfiniteScroll
+        dataLength={filteredSets.length} // Anzahl der bisher geladenen Sets
+        next={loadMoreData} // Funktion, die beim Scrollen mehr Daten lädt
+        hasMore={hasMore} // Flag, ob mehr Sets vorhanden sind
+        loader={<div>Loading...</div>} // Ladeanzeige
+        endMessage={<p>No more sets to show.</p>} // Nachricht, wenn alle Sets geladen sind
+      >
+        <List
+          loading={loading}
+          grid={{ gutter: 16, column: 3 }}
+          dataSource={filteredSets}
+          key={filteredSets.id}
+          renderItem={(item) => (
+            <List.Item>
+              <SetCard loading={loading} item={item} />
+            </List.Item>
+          )}
+        />
+      </InfiniteScroll>
     </Flex>
   );
 };
