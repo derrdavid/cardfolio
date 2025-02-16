@@ -101,22 +101,14 @@ const Cards = () => {
             >
                 <List
                     loading={loading}
-                    grid={{ gutter: 16, column: 3 }}
+                    grid={{ gutter: 16, column: 6 }}
                     dataSource={filteredCards}
                     renderItem={(item) => (
-                        <List.Item hoverable onClick={() => navigate(`/card/${item.id}`)} style={{ cursor: 'pointer' }}>
-                            <List.Item.Meta
-                                hoverable
-                                avatar={
-                                    <img
-                                        src={item.images.small}
-                                        alt="Activity"
-                                        style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-                                    />
-                                }
-                                title={item.name}
-                            />
-                            <Typography className={`activity-amount ${item.amountType}`}>{item.amount}</Typography>
+                        <List.Item>
+                            <Card onClick={() => navigate(`/card/${item.id}`)} hoverable cover={<img src={item.images.small} alt="Activity" />}>
+                                <Typography>#{item.number}</Typography>
+                                <Card.Meta title={item.name} />
+                            </Card>
                         </List.Item>
                     )}
                 />

@@ -31,13 +31,7 @@ function App() {
                 >
                     <Nav />
                 </Header>
-                <Content
-                    style={{
-                        padding: '1rem',
-                        background: '#FFFFFF',
-                        borderRadius: '1.5rem',
-                    }}
-                >
+                <Content className='content-wrapper'>
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/card/:id" element={<CardDetail />} />

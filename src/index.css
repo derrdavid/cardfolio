@@ -1,0 +1,11 @@
+.content-wrapper {
+    padding: 1rem 10rem;
+    background: #FFFFFF;
+    border-radius: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .content-wrapper {
+      padding: 1rem;
+    }
+  }
