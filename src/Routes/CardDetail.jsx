@@ -4,6 +4,7 @@ import { Typography, Button, Divider, Table, Spin, Image, Grid, Flex, List, Desc
 import { fetchCards } from '../Services/pokemon_tcg_service'; // Stelle sicher, dass diese Funktion existiert
 import './CardDetail.css';
 import ButtonGroup from 'antd/es/button/button-group';
+import Card3D from '../Components/Card3D';
 
 const { Title, Text } = Typography;
 
@@ -47,7 +48,7 @@ const CardDetails = () => {
             <Title level={1}><span>{card.name} <Text level={2} type='secondary'>{card.set.ptcgoCode + " " + card.number}</Text></span></Title>
             {/* Card Image */}
             <Flex gap="middle" justify="left">
-                <Image src={card.images.large} preview={false} width={300} loading={loading} />
+                <Card3D card={card}></Card3D>
                 <Flex gap="middle" vertical style={{ width: '25%' }}>
                     <List bordered>
                         <List.Item>

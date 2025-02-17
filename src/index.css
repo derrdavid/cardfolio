@@ -9,3 +9,19 @@
       padding: 1rem;
     }
   }
+
+
+  .card-3d {
+    transition: transform 0.2s ease-out, box-shadow 0.3s ease;
+    will-change: transform;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Optional: Feste Dimensionen für eine konsistente Darstellung */
+    width: 300px;
+    height: 400px;
+  }
+
+  .card-3d:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
