@@ -12,7 +12,7 @@ const Sets = () => {
   const [loading, setLoading] = useState(true);
   const [filteredSets, setFilteredSets] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("name-asc");
+  const [filterType, setFilterType] = useState("date-desc");
   const [page, setPage] = useState(1); // Seitenzahl für die Paginierung
   const [hasMore, setHasMore] = useState(true);
 
@@ -28,6 +28,17 @@ const Sets = () => {
     }).then(() => setLoading(false));
   }, []);
 
+  const compareDates = (a, b, order) => {
+    const aDate = new Date(a.releaseDate);
+    const bDate = new Date(b.releaseDate);
+    if (order === "date-asc") {
+      return aDate - bDate;
+    } else if (order === "date-desc") {
+      return bDate - aDate;
+    }
+    return 0;
+  };
+
   // Handle search and filter
   useEffect(() => {
     const searchLower = searchTerm.toLowerCase();
@@ -42,14 +53,13 @@ const Sets = () => {
         const bName = b.name.toLowerCase();
 
         if (filterType.includes("name")) {
-          const aName = a.name.toLowerCase();
-          const bName = b.name.toLowerCase();
-          // Sortiere nach Namen (A-Z oder Z-A)
           if (filterType === "name-asc") {
             return aName.localeCompare(bName); // A-Z
           } else if (filterType === "name-desc") {
             return bName.localeCompare(aName); // Z-A
           }
+        } else if (filterType.includes("date")) {
+          return compareDates(a, b, filterType);
         }
 
         // Ermittele, an welcher Stelle der Suchbegriff auftaucht:
@@ -92,12 +102,14 @@ const Sets = () => {
         </Select>
 
         <Select
-          defaultValue="name-asc"
+          defaultValue="date-desc"
           onChange={(value) => setFilterType(value)}
           style={{ width: 200 }}
         >
           <Option value="name-asc">Name (A-Z)</Option>
           <Option value="name-desc">Name (Z-A)</Option>
+          <Option value="date-asc">Datum (aufsteigend)</Option>
+          <Option value="date-desc">Datum (absteigend)</Option>
         </Select>
 
       </Flex>
@@ -105,7 +117,6 @@ const Sets = () => {
       <InfiniteScroll
         dataLength={filteredSets.length} // Anzahl der bisher geladenen Sets
         hasMore={hasMore} // Flag, ob mehr Sets vorhanden sind
-        endMessage={<p>No more sets to show.</p>} // Nachricht, wenn alle Sets geladen sind
       >
         <List
           loading={loading}

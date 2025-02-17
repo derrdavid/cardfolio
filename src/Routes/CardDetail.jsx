@@ -47,7 +47,7 @@ const CardDetails = () => {
             {/* Card Title */}
             <Title level={1}><span>{card.name} <Text level={2} type='secondary'>{card.set.ptcgoCode + " " + card.number}</Text></span></Title>
             {/* Card Image */}
-            <Flex gap="middle" justify="left">
+            <Flex gap="large" justify="left">
                 <Card3D card={card}></Card3D>
                 <Flex gap="middle" vertical style={{ width: '25%' }}>
                     <List bordered>

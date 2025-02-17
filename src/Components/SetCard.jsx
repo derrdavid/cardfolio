@@ -1,9 +1,12 @@
 import { Card, Image } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const SetCard = (({ loading, item }) => {
+    const navigate = useNavigate();
     return (
         <Card
             loading={loading}
+            onClick={() => navigate('/cards', { state: { locationSet: item } })}
             className="set-card"
             hoverable
             extra={
