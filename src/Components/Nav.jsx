@@ -11,14 +11,15 @@ const DashboardHeader = () => {
         <Header style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E8EB', position: 'fixed', zIndex: 1, width: '100%', top: 0, left: 0 }}>
             <Flex justify='space-between' align='center' gap='large'>
                 <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Work Sans' }}><Link to="/">cardfolio</Link></div>
-                <Search size='large'/>
+                <Search size='large' />
                 <Space size='large'>
                     <Menu mode="horizontal" defaultSelectedKeys={['1']} style={{ borderBottom: 'none', width: '20vw', display: 'flex', justifyContent: 'center' }}>
                         <Menu.Item key="1" icon={<HomeFilled />} ><Link to="/">Home</Link></Menu.Item>
                         <Menu.Item key="2" icon={<AppstoreFilled />}><Link to="/sets">Sets</Link></Menu.Item>
                         <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/cards">Cards</Link></Menu.Item>
+                        <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/my">MyCollection</Link></Menu.Item>
                     </Menu>
-                    <Avatar src="https://via.placeholder.com/40x40" style={{ width: 40, height: 40 }} />
+                    <Link className='avatarLink' to="/my"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>DD</Avatar></Link>
                 </Space>
             </Flex>
         </Header>
