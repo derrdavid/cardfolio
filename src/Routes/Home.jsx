@@ -1,10 +1,92 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Flex, Grid, Image, List, Row, Typography, theme } from "antd";
+import { Card, List, Typography, Flex } from 'antd';
 import { fetchCards, fetchSets } from '../Services/pokemon_tcg_service';
-import './Home.css';
-import { Router } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import SetCard from '../Components/SetCard';
+import './Home.css';
+
+const { Title, Text } = Typography;
+
+/* Eine stateless Komponente für die statischen Metriken */
+const StatsSection = ({ stats }) => (
+  <Flex className="stats-section" gap="middle">
+    {stats.map((item, idx) => (
+      <Card key={idx} className="card" title={item.title}>
+        <Card.Meta title={item.metaTitle} description={item.metaDescription} />
+      </Card>
+    ))}
+  </Flex>
+);
+
+/* Eine Komponente für Schnellaktionen */
+const QuickActions = ({ onAction }) => (
+  <Flex className="quick-actions-section" gap="middle">
+    {[
+      { action: 'collection', label: 'My Collection' },
+      { action: 'sets', label: 'Browse Sets' },
+      { action: 'singles', label: 'Browse Singles' },
+    ].map(({ action, label }) => (
+      <Card
+        key={action}
+        className="card"
+        title="+"
+        hoverable
+        onClick={() => onAction(action)}
+      >
+        <Card.Meta title={label} />
+      </Card>
+    ))}
+  </Flex>
+);
+
+/* Eine generische Komponente, um eine Liste in einem Abschnitt anzuzeigen */
+const SectionList = ({ title, data, renderItem, gridConfig, itemClick }) => (
+  <>
+    <Title level={3}>{title}</Title>
+    <List
+      grid={gridConfig}
+      dataSource={data}
+      renderItem={(item) => (
+        <List.Item onClick={itemClick ? () => itemClick(item.id) : undefined}>
+          {renderItem(item)}
+        </List.Item>
+      )}
+    />
+  </>
+);
+
+/* Eine horizontale Liste, zum Beispiel für "My Collection" */
+const HorizontalList = ({ title, data, onItemClick }) => (
+  <>
+    <Title level={3}>{title}</Title>
+    <List
+      itemLayout="horizontal"
+      dataSource={data}
+      renderItem={(item) => (
+        <List.Item hoverable onClick={() => onItemClick(item.id)}>
+          <List.Item.Meta
+            avatar={
+              <img
+                src={item.images.small}
+                alt="Activity"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                }}
+              />
+            }
+            title={item.name}
+          />
+          <Text className={`activity-amount ${item.amountType}`}>
+            {item.amount}
+          </Text>
+        </List.Item>
+      )}
+    />
+  </>
+);
 
 const Home = () => {
   const [sets, setSets] = useState([]);
@@ -15,14 +97,45 @@ const Home = () => {
   useEffect(() => {
     fetchSets('orderBy=-releaseDate&pageSize=6').then((data) => {
       setSets(data.data);
-    })
-
-    fetchCards().then((data) => {
-      setCards(data.data);
-    }).then(() => setLoading(false));
+    });
+    fetchCards()
+      .then((data) => {
+        setCards(data.data);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const { Title, Text } = Typography;
+  const stats = [
+    {
+      title: 'Estimated Collection Value',
+      metaTitle: '2750€',
+      metaDescription: '+12.5% from last month',
+    },
+    {
+      title: 'Total Cards',
+      metaTitle: '3245€',
+      metaDescription: '145 new cards this month',
+    },
+    {
+      title: 'Unique Sets',
+      metaTitle: '48',
+      metaDescription: 'Last updated: 2 days ago',
+    },
+    {
+      title: 'Unique Sets',
+      metaTitle: '48',
+      metaDescription: 'Last updated: 2 days ago',
+    },
+  ];
+
+  const handleQuickAction = (actionType) => {
+    console.log('Quick action:', actionType);
+  };
+
+  const handleCardClick = (cardId) => {
+    navigate(`/card/${cardId}`);
+  };
+
   return (
     <div className="dashboard-container">
       <Title level={2}>Hello Dave!</Title>
@@ -31,71 +144,24 @@ const Home = () => {
           <Title level={3}>Chart</Title>
         </Card>
 
-        <Flex className="stats-section" gap="middle">
-          <Card className="card" title="Estimated Collection Value">
-            <Card.Meta title="2750€" description="+12.5% from last month"></Card.Meta>
-          </Card>
-
-          <Card className="card" title="Total Cards">
-            <Card.Meta title="3245€" description="145 new cards this month"></Card.Meta>
-          </Card>
-
-          <Card className="card" title="Unique Sets">
-            <Card.Meta title="48" description="Last updated: 2 days ago"></Card.Meta>
-          </Card>
-          <Card className="card" title="Unique Sets">
-            <Card.Meta title="48" description="Last updated: 2 days ago"></Card.Meta>
-          </Card>
-        </Flex>
+        <StatsSection stats={stats} />
 
         <Title level={3}>Quick Actions</Title>
-        <Flex className="quick-actions-section" gap="middle">
-          <Card className="card" title="+" hoverable onClick={() => console.log('Clicked')}>
-            <Card.Meta title="My Collection" />
-          </Card>
+        <QuickActions onAction={handleQuickAction} />
 
-          <Card className="card" title="+" hoverable>
-            <Card.Meta title="Browse Sets" />
-          </Card>
-
-          <Card className="card" title="+" hoverable>
-            <Card.Meta title="Browse Singles" />
-          </Card>
-        </Flex>
-
-        <Title level={3}>Newest Sets</Title>
-        <List
-          grid={{ gutter: 16, column: 3 }}
-          dataSource={sets}
-          key={sets.id}
-          renderItem={(item) => (
-            <List.Item>
-              <SetCard loading={loading} item={item} />
-            </List.Item>
-          )}
+        {/* Neueste Sets */}
+        <SectionList
+          title="Newest Sets"
+          data={sets}
+          gridConfig={{ gutter: 16, column: 3 }}
+          renderItem={(item) => <SetCard loading={loading} item={item} />}
         />
 
-        <Title level={3}>Trending</Title>
-        <List
-          loading={loading}
-          itemLayout="horizontal"
-          dataSource={cards}
-          key={cards.id}
-          renderItem={(item) => (
-            <List.Item hoverable onClick={() => navigate(`/card/${item.id}`)}>
-              <List.Item.Meta
-                avatar={
-                  <img
-                    src={item.images.small}
-                    alt="Activity"
-                    style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                }
-                title={item.name}
-              />
-              <Text className={`activity-amount ${item.amountType}`}>{item.amount}</Text>
-            </List.Item>
-          )}
+        {/* Sammlung */}
+        <HorizontalList
+          title="My Collection"
+          data={cards}
+          onItemClick={handleCardClick}
         />
       </Flex>
     </div>
