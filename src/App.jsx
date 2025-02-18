@@ -7,6 +7,7 @@ import { fetchSets } from './Services/pokemon_tcg_service';
 import CardDetail from './Routes/CardDetail';
 import Sets from './Routes/Sets';
 import Cards from './Routes/Cards';
+import Collection from './Routes/Collection';
 function App() {
 
     return (
@@ -37,6 +38,7 @@ function App() {
                         <Route path="/card/:id" element={<CardDetail />} />
                         <Route path="/cards" element={<Cards />} />
                         <Route path="/sets" element={<Sets />} />
+                        <Route path="/collection" element={<Collection />} />
                     </Routes>
                 </Content>
             </Layout>

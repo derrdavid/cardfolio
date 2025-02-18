@@ -17,7 +17,7 @@ const DashboardHeader = () => {
                         <Menu.Item key="1" icon={<HomeFilled />} ><Link to="/">Home</Link></Menu.Item>
                         <Menu.Item key="2" icon={<AppstoreFilled />}><Link to="/sets">Sets</Link></Menu.Item>
                         <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/cards">Cards</Link></Menu.Item>
-                        <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/my">MyCollection</Link></Menu.Item>
+                        <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/collection">MyCollection</Link></Menu.Item>
                     </Menu>
                     <Link className='avatarLink' to="/my"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>DD</Avatar></Link>
                 </Space>
