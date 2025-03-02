@@ -97,7 +97,8 @@ export const useDeleteUser = () => {
 };
 
 const fetchUserCollections = async (userId) => {
-    const response = await axios.get(`http://localhost:3000/api/users/${userId}/collections`);
+    const response = await axios.get(`http://localhost:3000/api/users/collections`, {
+    });
     return response.data;
 };
 
@@ -105,7 +106,6 @@ export const useUserCollections = (userId) => {
     return useQuery({
         queryKey: userKeys.collections(userId),
         queryFn: () => fetchUserCollections(userId),
-        enabled: !!userId,
         staleTime: 1000 * 60 * 5, // 5 Minuten Cache
         cacheTime: 1000 * 60 * 30, // 30 Minuten im Cache behalten
     });

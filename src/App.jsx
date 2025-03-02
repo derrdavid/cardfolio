@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Nav from './Components/Nav';
 import Home from './Routes/Home';
 import { Card, ConfigProvider, Layout } from 'antd';
@@ -13,6 +13,9 @@ import { Register } from './Routes/Register';
 import { User } from './Routes/User';
 import { AuthProvider } from './Hooks/AuthProvider';
 function App() {
+    const location = useLocation();
+    const publicPaths = ['/login', '/register'];
+    const isPublicPath = publicPaths.includes(location.pathname);
 
     return (
         <ConfigProvider theme={{
@@ -29,14 +32,17 @@ function App() {
                 }}
             >
                 <AuthProvider>
-                    {/* <Header
-                        style={{
-                            padding: '0 1.5rem',
-                            background: '#FFFFFF',
-                        }}
-                    >
-                        <Nav />
-                    </Header> */}
+                    {isPublicPath ? null : (
+                        <Header
+                            style={{
+                                padding: '0 1.5rem',
+                                background: '#FFFFFF',
+                            }}
+                        >
+                            <Nav />
+                        </Header>
+                    )}
+
                     <Content className='content-wrapper'>
                         <Routes>
                             <Route path="/" element={<Home />} />
