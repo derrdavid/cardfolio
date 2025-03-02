@@ -3,10 +3,12 @@ import { Layout, Menu, Avatar, Space, Flex } from 'antd';
 import { UserOutlined, DashboardOutlined, AppstoreOutlined, ShopOutlined, SearchOutlined, HomeFilled, AppstoreFilled, OrderedListOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
+import { useAuthContext } from '../Hooks/AuthProvider';
 
 const { Header } = Layout;
 
 const DashboardHeader = () => {
+    const { user } = useAuthContext();
     return (
         <Header style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E8EB', position: 'fixed', zIndex: 1, width: '100%', top: 0, left: 0 }}>
             <Flex justify='space-between' align='center' gap='large'>
@@ -19,7 +21,7 @@ const DashboardHeader = () => {
                         <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/cards">Cards</Link></Menu.Item>
                         <Menu.Item key="3" icon={<OrderedListOutlined />}><Link to="/collection">MyCollection</Link></Menu.Item>
                     </Menu>
-                    <Link className='avatarLink' to="/my"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>DD</Avatar></Link>
+                    <Link className='avatarLink' to="/user"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>{user.username}</Avatar></Link>
                 </Space>
             </Flex>
         </Header>

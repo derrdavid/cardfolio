@@ -4,6 +4,7 @@ import { fetchCards, fetchSets } from '../Services/pokemon_tcg_service';
 import { useNavigate } from 'react-router-dom';
 import SetCard from '../Components/SetCard';
 import './Home.css';
+import { useAuthContext } from '../Hooks/AuthProvider';
 
 const { Title, Text } = Typography;
 
@@ -93,6 +94,8 @@ const Home = () => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuthContext();
+  console.log(user)
 
   useEffect(() => {
     fetchSets('orderBy=-releaseDate&pageSize=6').then((data) => {
@@ -138,7 +141,7 @@ const Home = () => {
 
   return (
     <div className="dashboard-container">
-      <Title level={2}>Hello Dave!</Title>
+      <Title level={2}>Hello {user.username} 👋</Title>
       <Flex gap="middle" vertical>
         <Card className="card" title="Estimated Collection Value">
           <Title level={3}>Chart</Title>
