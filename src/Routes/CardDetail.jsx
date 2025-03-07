@@ -3,40 +3,18 @@ import { useParams } from 'react-router-dom';
 import { Typography, Button, Divider, Spin, List, Flex } from 'antd';
 import { fetchCards } from '../Services/pokemon_tcg_service';
 import Card3D from '../Components/Card3D';
-import './CardDetail.css';
+import Breadcrumbs from '../Components/Breadcrumbs';
 
 const { Title, Text } = Typography;
 
-const Breadcrumbs = () => (
-    <div className="breadcrumbs">
-        <Text type="secondary">
-            <a href="#">Home</a> / <a href="#">Portfolio</a> / <span>Pokemon</span>
-        </Text>
-    </div>
-);
-
-const CardInfoList = ({ card }) => (
+const CardInfoList = ({ infoList }) => (
     <List bordered>
-        <List.Item>
-            <Text>Nr.</Text>
-            <Text strong>{card.number}</Text>
-        </List.Item>
-        <List.Item>
-            <Text>Name</Text>
-            <Text strong>{card.name}</Text>
-        </List.Item>
-        <List.Item>
-            <Text>Rarity</Text>
-            <Text strong>{card.rarity}</Text>
-        </List.Item>
-        <List.Item>
-            <Text>Set</Text>
-            <Text strong>{card.set.name}</Text>
-        </List.Item>
-        <List.Item>
-            <Text>Release</Text>
-            <Text strong>{card.set.releaseDate}</Text>
-        </List.Item>
+        {infoList.map((item) => (
+            <List.Item>
+                <Text>{item.title}</Text>
+                <Text strong>{item.data}</Text>
+            </List.Item>
+        ))}
     </List>
 );
 
@@ -55,6 +33,13 @@ const CardDetails = () => {
     const { id } = useParams();
     const [card, setCard] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const cardInfo = card ? [
+        {title: 'Nr.', key: 'number', data: card.number},
+        {title: 'Name', key: 'name', data: card.name},
+        {title: 'Rarity', key: 'rarity', data: card.rarity},
+        {title: 'Set', key: 'set', data: card.set.name},
+    ] : [];
 
     useEffect(() => {
         fetchCards(`/${id}`)
@@ -92,8 +77,8 @@ const CardDetails = () => {
             </Title>
             <Flex gap="large" justify="left">
                 <Card3D card={card} />
-                <Flex gap="middle" vertical style={{ width: '25%' }}>
-                    <CardInfoList card={card} />
+                <Flex gap="middle" vertical style={{ width: '30vw' }}>
+                    <CardInfoList infoList={cardInfo} />
                     <ActionButtons />
                 </Flex>
             </Flex>

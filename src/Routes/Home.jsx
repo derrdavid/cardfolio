@@ -3,10 +3,10 @@ import { Card, List, Typography, Flex } from 'antd';
 import { fetchCards, fetchSets } from '../Services/pokemon_tcg_service';
 import { useNavigate } from 'react-router-dom';
 import SetCard from '../Components/SetCard';
-import './Home.css';
+import './styles/Home.css';
 import { useAuthContext } from '../Hooks/AuthProvider';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 /* Eine stateless Komponente für die statischen Metriken */
 const StatsSection = ({ stats }) => (
@@ -50,39 +50,6 @@ const SectionList = ({ title, data, renderItem, gridConfig, itemClick }) => (
       renderItem={(item) => (
         <List.Item onClick={itemClick ? () => itemClick(item.id) : undefined}>
           {renderItem(item)}
-        </List.Item>
-      )}
-    />
-  </>
-);
-
-/* Eine horizontale Liste, zum Beispiel für "My Collection" */
-const HorizontalList = ({ title, data, onItemClick }) => (
-  <>
-    <Title level={3}>{title}</Title>
-    <List
-      itemLayout="horizontal"
-      dataSource={data}
-      renderItem={(item) => (
-        <List.Item hoverable onClick={() => onItemClick(item.id)}>
-          <List.Item.Meta
-            avatar={
-              <img
-                src={item.images.small}
-                alt="Activity"
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                }}
-              />
-            }
-            title={item.name}
-          />
-          <Text className={`activity-amount ${item.amountType}`}>
-            {item.amount}
-          </Text>
         </List.Item>
       )}
     />
@@ -158,13 +125,6 @@ const Home = () => {
           data={sets}
           gridConfig={{ gutter: 16, column: 3 }}
           renderItem={(item) => <SetCard loading={loading} item={item} />}
-        />
-
-        {/* Sammlung */}
-        <HorizontalList
-          title="My Collection"
-          data={cards}
-          onItemClick={handleCardClick}
         />
       </Flex>
     </div>
