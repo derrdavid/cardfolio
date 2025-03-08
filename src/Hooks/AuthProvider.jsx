@@ -1,44 +1,41 @@
 import { createContext, useContext } from 'react';
-import { useAuth } from '../api/auth';
-import { Navigate, useLocation } from 'react-router-dom';
-import { Spin } from 'antd';
+import { useQuery } from '@tanstack/react-query';
+import { checkAuth, useLogin, authKey } from "../api/auth";
 
 const AuthContext = createContext(null);
 
-// Named function export statt Arrow Function
 export function useAuthContext() {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error('useAuthContext muss innerhalb eines AuthProviders verwendet werden');
+        throw new Error('useAuthContext must be used within an AuthProvider');
     }
     return context;
 }
 
 export function AuthProvider({ children }) {
-    const { data: user, isLoading } = useAuth();
-    const location = useLocation();
+    // Auth Status Query
+    const { data: user, isLoading, error } = useQuery({
+        queryKey: authKey.user,
+        queryFn: checkAuth,
+        staleTime: 1000 * 60 * 5,
+        cacheTime: 1000 * 60 * 30,
+        retry: 1,
+        refetchOnWindowFocus: false
+    });
 
-    if (isLoading) {
-        return (
-            <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Spin size="large" />
-            </div>
-        );
-    }
+    // Login Mutation
+    const { mutateAsync: login } = useLogin();
 
-    // Öffentliche Routen definieren
-    const publicPaths = ['/login', '/register'];
-    const isPublicPath = publicPaths.includes(location.pathname);
-
-    if (!user && !isPublicPath) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
-    if (user && isPublicPath) {
-        return <Navigate to="/" replace />;
-    }
+    const value = {
+        user,
+        isLoading,
+        error,
+        isAuthenticated: !!user,
+        login
+    };
 
     return (
-        <AuthContext.Provider value={{ user }}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );

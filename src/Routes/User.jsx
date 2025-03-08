@@ -1,9 +1,6 @@
 import { Button, Flex } from "antd";
-import { useAuthContext } from "../Hooks/AuthProvider";
 
 export const User = () => {
-    const { user } = useAuthContext();
-
     return (
         <Flex vertical>
             <h2>{user.username}</h2>

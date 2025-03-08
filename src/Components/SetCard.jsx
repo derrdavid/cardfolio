@@ -19,7 +19,7 @@ const SetCard = (({ loading, item }) => {
             }
             cover={
                 <Image
-                    loading={loading}
+                    loading="eager"
                     src={item.images.logo}
                     alt="logo"
                     preview={false}

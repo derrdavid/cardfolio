@@ -57,11 +57,11 @@ const SectionList = ({ title, data, renderItem, gridConfig, itemClick }) => (
 );
 
 const Home = () => {
+  const {user} = useAuthContext();
   const [sets, setSets] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { user } = useAuthContext();
   console.log(user)
 
   useEffect(() => {

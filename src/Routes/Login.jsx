@@ -3,6 +3,7 @@ import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icon
 import { useState } from "react";
 import { useLogin } from "../api/auth";
 import LogoSvg from '../assets/logo.svg'; // SVG hier importieren
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
     const [username, setUsername] = useState("");

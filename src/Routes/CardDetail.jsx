@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Button, Divider, Spin, List, Flex } from 'antd';
+import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb } from 'antd';
 import { fetchCards } from '../Services/pokemon_tcg_service';
 import Card3D from '../Components/Card3D';
-import Breadcrumbs from '../Components/Breadcrumbs';
 
 const { Title, Text } = Typography;
 
@@ -65,7 +64,7 @@ const CardDetails = () => {
 
     return (
         <div className="card-details-container">
-            <Breadcrumbs />
+            <Breadcrumb></Breadcrumb>
             <Divider />
             <Title level={1}>
                 <span>
