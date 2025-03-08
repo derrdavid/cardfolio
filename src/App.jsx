@@ -6,7 +6,6 @@ import { Content, Header } from 'antd/es/layout/layout';
 import { fetchSets } from './Services/pokemon_tcg_service';
 import CardDetail from './Routes/CardDetail';
 import Sets from './Routes/Sets';
-import Cards from './Routes/Cards';
 import Collection from './Routes/Collection';
 import { Login } from './Routes/Login';
 import { Register } from './Routes/Register';
@@ -49,7 +48,6 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/card/:id" element={<CardDetail />} />
-                            <Route path="/cards" element={<Cards />} />
                             <Route path="/sets" element={<Sets />} />
                             <Route path="/user" element={<User />} />
                             <Route path="/collection" element={<Collection />} />

@@ -3,11 +3,12 @@ import Card3D from "../Components/Card3D";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCards } from "../Services/pokemon_tcg_service";
 import { useUserCollections } from "../api/users";
+import { useContext } from "react";
 
 const { Title } = Typography;
 
 const Collection = () => {
-    const userId = 1;
+    const userId = useContext(AuthContext).user.id;
 
     const {
         data: userData,
