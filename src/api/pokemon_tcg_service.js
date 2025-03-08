@@ -1,5 +1,13 @@
-// src/services/pokemonTCGService.js
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 const API_BASE_URL = 'https://api.pokemontcg.io/v2';
+
+export const useSets = (queryParams) => {
+  return useQuery({
+    queryKey: ['sets', queryParams],
+    queryFn: () => fetchSets(queryParams),
+  });
+};
 
 export const fetchSets = async (queryParams = '') => {
   try {

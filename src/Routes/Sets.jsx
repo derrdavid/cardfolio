@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Card, Input, Select, Row, Col, List, Flex } from "antd";
-import { fetchSets } from '../Services/pokemon_tcg_service';
+import { fetchSets } from '../api/pokemon_tcg_service';
 import SetCard from "../Components/SetCard";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Title from "antd/es/typography/Title";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -84,6 +85,7 @@ const Sets = () => {
 
   return (
     <Flex vertical gap="large">
+      <Title level={1}>Browse Sets</Title>
       <Flex gap="small">
         <Search
           placeholder="Search for a set"

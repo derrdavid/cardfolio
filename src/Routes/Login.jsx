@@ -1,18 +1,28 @@
 import { Button, Flex, Form, Image, Input } from "antd";
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLogin } from "../api/auth";
 import LogoSvg from '../assets/logo.svg'; // SVG hier importieren
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../Hooks/AuthProvider";
 
 export const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const login = useLogin();
+    const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuthContext();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleAuthenticate = async () => {
         try {
             await login.mutateAsync({ username: username, password: password });
+            navigate('/'); // Nach erfolgreichem Login zur Home-Route
         } catch (error) {
             console.error('Login fehlgeschlagen');
         }

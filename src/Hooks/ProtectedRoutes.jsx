@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from "../api/auth";
 import { Layout, Spin } from 'antd';
+import '../index.css'
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../Components/Navbar';
 import { useAuthContext } from './AuthProvider';

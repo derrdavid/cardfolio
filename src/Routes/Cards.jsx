@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Card, Input, Select, List, Flex, Typography } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { fetchCards, fetchSets } from "../Services/pokemon_tcg_service";
+import { fetchCards, fetchSets } from "../api/pokemon_tcg_service";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const { Search } = Input;
