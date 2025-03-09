@@ -32,7 +32,7 @@ const Navbar = () => {
     return (
         <Header className="header">
             <Link style={{ color: "black" }} to="/"><span style={{ display: "Flex", gap: ".2rem", fontWeight: "600", fontSize: "1rem" }}><img src={Logo} style={{ width: "2rem" }}></img>cardfolio</span></Link>
-            <Search className='header__search' />
+            <Search className='header__search' placeholder='Search for a card'/>
             <Menu mode="horizontal" defaultSelectedKeys={['1']} items={menu_items} className='header__menu' />
             <Link className='avatarLink' to="/user"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>{user.username}</Avatar></Link>
         </Header>
