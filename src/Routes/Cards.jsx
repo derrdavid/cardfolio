@@ -1,112 +1,58 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Card, Input, Select, List, Flex, Typography } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { Card, Select, List, Flex, Typography } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { fetchCards, fetchSets } from "../api/pokemon_tcg_service";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useCardFiltering } from "../Hooks/useCardFiltering";
+import Search from "antd/es/transfer/search";
+import { fetchCards, fetchSets } from "../api/pokemon_tcg_service";
 
-const { Search } = Input;
-const { Option } = Select;
-const { Text } = Typography;
-
-/**
- * Sortiert ein Array von Karten basierend auf den Übergabeparametern.
- */
-const sortCards = (cards, sortOrder) => {
-    return cards.sort((a, b) => {
-        const aName = a.name.toLowerCase();
-        const bName = b.name.toLowerCase();
-        switch (sortOrder) {
-            case "name-asc":
-                return aName.localeCompare(bName);
-            case "name-desc":
-                return bName.localeCompare(aName);
-            case "id-asc":
-                return a.number.localeCompare(b.number, undefined, { numeric: true });
-            case "id-desc":
-                return b.number.localeCompare(a.number, undefined, { numeric: true });
-            case "date-asc":
-                return new Date(a.releaseDate) - new Date(b.releaseDate);
-            case "date-desc":
-                return new Date(b.releaseDate) - new Date(a.releaseDate);
-            default:
-                return 0;
-        }
-    });
-};
-
-/**
- * Filtert die Karten basierend auf Suche, Karten-Typ und ausgewähltem Set.
- */
-const filterCards = (cards, { searchTerm, cardType, selectedSet }) => {
-    const searchLower = searchTerm.toLowerCase();
-    return cards.filter((card) => {
-        const name = card.name.toLowerCase();
-        const matchesSet = selectedSet === "all" || card.set.id === selectedSet;
-        const matchesSearch = name.includes(searchLower);
-        const matchesType = cardType === "all" ? true : card.type.toLowerCase() === cardType;
-        return matchesSearch && matchesType && matchesSet;
-    });
-};
-
-const Cards = ({ set }) => {
+export const Cards = ({ set }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { locationSet } = location.state || {};
-    const [cards, setCards] = useState([]);
-    const [sets, setSets] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [filteredCards, setFilteredCards] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [cardType, setCardType] = useState("all");
-    const [selectedSet, setSelectedSet] = useState(locationSet ? locationSet.id : "all");
-    const [sortOrder, setSortOrder] = useState("id-asc");
+    
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const [cards, setCards] = useState([]);
+    const [sets, setSets] = useState([]);
 
-    /**
-     * Lädt Karten basierend auf Seite, selektiertem Set und Sortierreihenfolge.
-     */
+    // Card Filtering Hook
+    const {
+        filteredCards,
+        setSearchTerm,
+        setSortType,
+        setFilterType,
+        SORT_TYPES
+    } = useCardFiltering(cards);
+
+    // Karten laden
     const loadCards = useCallback(() => {
         setLoading(true);
-        const setFilter = selectedSet !== "all" ? `&q=set.id:${selectedSet}` : "";
+        const setFilter = locationSet?.id ? `&q=set.id:${locationSet.id}` : "";
+        
         fetchCards(`?page=${page}${setFilter}&orderBy=id`)
             .then((data) => {
                 if (data.data.length === 0) {
                     setHasMore(false);
                 } else {
-                    const newCards = page === 1 ? data.data : [...cards, ...data.data];
-                    const sortedData = sortCards(newCards, sortOrder);
-                    setCards(sortedData);
+                    setCards(prevCards => 
+                        page === 1 ? data.data : [...prevCards, ...data.data]
+                    );
                 }
             })
             .finally(() => setLoading(false));
-        // cards wird hier absichtlich als Abhängigkeit genutzt, damit bei Page 1 der neue State korrekt gesetzt wird.
-    }, [page, selectedSet, sortOrder, cards]);
+    }, [page, locationSet]);
 
-    // Initialer und paginierter Karten-Load
+    // Initialer Load
     useEffect(() => {
         loadCards();
     }, [loadCards]);
 
-    // Laden der Sets
+    // Sets laden
     useEffect(() => {
         fetchSets("orderBy=id").then((data) => setSets(data.data));
     }, []);
-
-    // Filter und Sortierung anwenden
-    useEffect(() => {
-        const result = filterCards(cards, { searchTerm, cardType, selectedSet });
-        const sortedResult = sortCards(result, sortOrder);
-        setFilteredCards(sortedResult);
-    }, [searchTerm, cardType, sortOrder, cards, selectedSet]);
-
-    const loadMoreData = () => {
-        if (hasMore) {
-            setPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    const handleCardClick = (id) => navigate(`/card/${id}`);
 
     return (
         <Flex vertical gap="large">
@@ -117,39 +63,20 @@ const Cards = ({ set }) => {
                     style={{ width: 300 }}
                 />
                 <Select
-                    defaultValue={selectedSet}
-                    showSearch
-                    filterOption={(input, option) =>
-                        (option?.name ?? "").toLowerCase().includes(input.toLowerCase())
-                    }
-                    onChange={(value) => {
-                        setSelectedSet(value);
-                        setPage(1); // Reset Page beim Set-Wechsel
-                    }}
+                    defaultValue={SORT_TYPES.ID_ASC}
+                    onChange={setSortType}
                     style={{ width: 200 }}
                 >
-                    <Option value="all">Alle Sets</Option>
-                    {sets.map((s) => (
-                        <Option key={s.id} value={s.id} name={s.name}>
-                            {s.name}
-                        </Option>
-                    ))}
-                </Select>
-                <Select
-                    defaultValue={sortOrder}
-                    onChange={(value) => setSortOrder(value)}
-                    style={{ width: 200 }}
-                >
-                    <Option value="name-asc">Name (A-Z)</Option>
-                    <Option value="name-desc">Name (Z-A)</Option>
-                    <Option value="id-asc">ID (aufsteigend)</Option>
-                    <Option value="id-desc">ID (absteigend)</Option>
+                    <Option value={SORT_TYPES.NAME_ASC}>Name (A-Z)</Option>
+                    <Option value={SORT_TYPES.NAME_DESC}>Name (Z-A)</Option>
+                    <Option value={SORT_TYPES.ID_ASC}>ID (aufsteigend)</Option>
+                    <Option value={SORT_TYPES.ID_DESC}>ID (absteigend)</Option>
                 </Select>
             </Flex>
 
             <InfiniteScroll
                 dataLength={filteredCards.length}
-                next={loadMoreData}
+                next={() => setPage(p => p + 1)}
                 hasMore={hasMore}
             >
                 <List
@@ -160,7 +87,7 @@ const Cards = ({ set }) => {
                         <List.Item>
                             <Card
                                 hoverable
-                                onClick={() => handleCardClick(item.id)}
+                                onClick={() => navigate(`/card/${item.id}`)}
                                 cover={<img src={item.images.small} alt={item.name} />}
                             >
                                 <Typography>#{item.number}</Typography>
@@ -173,5 +100,3 @@ const Cards = ({ set }) => {
         </Flex>
     );
 };
-
-export default Cards;

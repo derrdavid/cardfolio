@@ -4,7 +4,7 @@ import { Register } from '../Routes/Register';
 import CardDetail from '../Routes/CardDetail';
 import Sets from '../Routes/Sets';
 import { User } from '../Routes/User';
-import Cards from '../Routes/Cards';
+import { Cards } from '../Routes/Cards';
 import Collection from '../Routes/Collection';
 import { NotFound } from '../Routes/NotFound';
 import { createBrowserRouter } from 'react-router-dom';

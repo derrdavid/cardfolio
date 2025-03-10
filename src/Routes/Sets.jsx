@@ -17,6 +17,7 @@ const Sets = () => {
     filteredSets,
     setSearchTerm,
     setSortType,
+    setFilterType,
     SORT_TYPES
   } = useSetFiltering(sets);
 
