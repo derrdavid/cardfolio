@@ -1,11 +1,11 @@
 import Home from '../Routes/Home';
 import { Login } from '../Routes/Login';
 import { Register } from '../Routes/Register';
-import CardDetail from '../Routes/CardDetail';
+import { CardDetails } from '../Routes/CardDetails';
 import Sets from '../Routes/Sets';
 import { User } from '../Routes/User';
 import { Cards } from '../Routes/Cards';
-import Collection from '../Routes/Collection';
+import { MyCollection } from '../Routes/MyCollection';
 import { NotFound } from '../Routes/NotFound';
 import { createBrowserRouter } from 'react-router-dom';
 import { ProtectedRoutes } from '../Hooks/ProtectedRoutes';
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/card/:id',
-                element: <CardDetail />,
+                element: <CardDetails />,
             },
             {
                 path: '/sets',
@@ -32,12 +32,12 @@ const router = createBrowserRouter([
                 element: <User />,
             },
             {
-                path: '/cards',
+                path: '/cards/:id',
                 element: <Cards />,
             },
             {
                 path: '/collection',
-                element: <Collection />,
+                element: <MyCollection />,
             }
         ]
     },

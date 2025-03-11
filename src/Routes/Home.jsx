@@ -1,15 +1,14 @@
 import { Card, List, Typography, Flex } from 'antd';
-import { useSets } from '../api/pokemon_tcg_service';
+import { useSetData } from '../api/pokemon_tcg_service';
 import SetCard from '../Components/SetCard';
 import './styles/Home.css';
-import { useAuthContext } from '../Hooks/AuthProvider';
+import { useUser } from '../Hooks/AuthProvider';
 
 const { Title } = Typography;
 
 const Home = () => {
-  const { user } = useAuthContext();
-  const { data, isPending: loading, isError } = useSets('orderBy=-releaseDate&pageSize=6');
-  const sets = data?.data || [];
+  const { user } = useUser();
+  const { data: sets, isPending: loading, isError } = useSetData('?orderBy=-releaseDate&pageSize=6');
 
   return (
     <div className="dashboard-container">

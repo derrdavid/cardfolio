@@ -1,10 +1,14 @@
 import { List, Spin, Typography, Divider } from "antd";
 import Card3D from "../Components/Card3D";
+import { useUser } from "../Hooks/AuthProvider";
+import { use } from "react";
 
 const { Title } = Typography;
 
-const Collection = () => {
 
+export const MyCollection = () => {
+    const {user, isLoading, error} = useUser();
+    console.log(user)
     return (
         <div style={{ padding: '24px' }}>
             <Title level={1}>Meine Sammlung</Title>
@@ -39,5 +43,3 @@ const Collection = () => {
         </div>
     );
 };
-
-export default Collection;

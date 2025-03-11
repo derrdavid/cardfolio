@@ -1,23 +1,17 @@
-import axios from 'axios';
+import { client } from './client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// API Basis-URL und globale Axios-Konfiguration
 const API_URL = 'http://localhost:3000/api/users';
-axios.defaults.withCredentials = true;
 
-// Query Keys für React Query
 export const authKey = {
     login: ['auth'],
     user: ['user'],
 }
 
-// Login-Funktion
 export const login = async (username, password) => {
-    const { data } = await axios.post(`${API_URL}/login`, { username, password });
-    return data;
+    return client.post(`${API_URL}/login`, { username, password });
 };
 
-// Login Hook
 export const useLogin = () => {
     const queryClient = useQueryClient();
     
@@ -29,22 +23,18 @@ export const useLogin = () => {
     });
 };
 
-// Logout-Funktion
 export const logout = () => {
-    return axios.post(`${API_URL}/logout`, {});
+    return client.post(`${API_URL}/logout`, {});
 };
 
-// Auth Status Check
 export const checkAuth = async () => {
     try {
-        const data = await axios.post(`${API_URL}/auth`); 
-        return data.data;
+        return await client.post(`${API_URL}/auth`);
     } catch {
         return null;
     }
 };
 
-// Auth Status Hook mit optimiertem Caching
 export const useAuth = () => {
     return useQuery({
         queryKey: authKey.user,
@@ -56,13 +46,11 @@ export const useAuth = () => {
     });
 };
 
-// Register-Funktion
 export const register = async (userData) => {
-    const { data } = await axios.post(`${API_URL}/register`, userData);
+    const { data } = await client.post(`${API_URL}/register`, userData);
     return data;
 };
 
-// Register Hook
 export const useRegister = () => {
     const queryClient = useQueryClient();
     

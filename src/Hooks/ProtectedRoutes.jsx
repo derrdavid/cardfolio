@@ -3,10 +3,10 @@ import { Layout, Spin } from 'antd';
 import '../index.css'
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../Components/Navbar';
-import { useAuthContext } from './AuthProvider';
+import { useUser } from './AuthProvider';
 
 export const ProtectedRoutes = ({ publicRoutes }) => {
-    const { user, isLoading } = useAuthContext();
+    const { user, isLoading } = useUser();
     const location = useLocation();
 
     if (isLoading) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb } from 'antd';
-import { fetchCards } from '../api/pokemon_tcg_service';
+import { useCardsData } from '../api/pokemon_tcg_service';
 import Card3D from '../Components/Card3D';
 
 const { Title, Text } = Typography;
@@ -28,25 +28,19 @@ const ActionButtons = () => (
     </Flex>
 );
 
-const CardDetails = () => {
+export const CardDetails = () => {
     const { id } = useParams();
-    const [card, setCard] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { data: card, isLoading } = useCardsData(`/${id}`);
 
-    const cardInfo = card ? [
-        {title: 'Nr.', key: 'number', data: card.number},
-        {title: 'Name', key: 'name', data: card.name},
-        {title: 'Rarity', key: 'rarity', data: card.rarity},
-        {title: 'Set', key: 'set', data: card.set.name},
+    // Erst prüfen ob card existiert
+    const cardInfo = card && card.set ? [
+        { title: 'Nr.', key: 'number', data: card.number },
+        { title: 'Name', key: 'name', data: card.name },
+        { title: 'Rarity', key: 'rarity', data: card.rarity },
+        { title: 'Set', key: 'set', data: card.set.name },
     ] : [];
 
-    useEffect(() => {
-        fetchCards(`/${id}`)
-            .then((data) => setCard(data.data))
-            .finally(() => setLoading(false));
-    }, [id]);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="card-details-container">
                 <Spin size="large" />
@@ -54,7 +48,8 @@ const CardDetails = () => {
         );
     }
 
-    if (!card) {
+    // Prüfen ob card und card.set existieren
+    if (!card || !card.set) {
         return (
             <div className="card-details-container">
                 <Text type="danger">Karte nicht gefunden</Text>
@@ -64,7 +59,7 @@ const CardDetails = () => {
 
     return (
         <div className="card-details-container">
-            <Breadcrumb></Breadcrumb>
+            <Breadcrumb />
             <Divider />
             <Title level={1}>
                 <span>
@@ -84,5 +79,3 @@ const CardDetails = () => {
         </div>
     );
 };
-
-export default CardDetails;

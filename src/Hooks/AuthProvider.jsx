@@ -4,12 +4,16 @@ import { checkAuth, useLogin, authKey } from "../api/auth";
 
 const AuthContext = createContext(null);
 
-export function useAuthContext() {
+export const useUser = ()  => {
     const context = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuthContext must be used within an AuthProvider');
     }
     return context;
+}
+
+export const useUserCollection = () => {
+    return ""
 }
 
 export function AuthProvider({ children }) {

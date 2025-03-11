@@ -1,6 +1,6 @@
 import React from "react";
 import { Input, Select, List, Flex } from "antd";
-import { useSets } from '../api/pokemon_tcg_service';
+import { useSetData } from '../api/pokemon_tcg_service';
 import SetCard from "../Components/SetCard";
 import Title from "antd/es/typography/Title";
 import { useSetFiltering } from "../Hooks/useSetFiltering";
@@ -9,8 +9,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const Sets = () => {
-  const { data, isPending: loading } = useSets(`page=1`);
-  const sets = data?.data || [];
+  const { data: sets, isLoading } = useSetData();
   
   // Verwende den verbesserten Hook mit SORT_TYPES
   const {
@@ -51,12 +50,12 @@ const Sets = () => {
       </Flex>
 
       <List
-        loading={loading}
+        loading={isLoading}
         grid={{ gutter: 16, column: 3 }}
         dataSource={filteredSets}
         renderItem={(item) => (
           <List.Item key={item.id}>
-            <SetCard loading={loading} item={item} />
+            <SetCard loading={isLoading} item={item} />
           </List.Item>
         )}
       />

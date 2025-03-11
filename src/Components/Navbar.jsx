@@ -4,8 +4,7 @@ import { HomeFilled, AppstoreFilled, OrderedListOutlined } from '@ant-design/ico
 import { Link } from 'react-router-dom';
 import Logo from '../assets/logo.svg';
 import Search from 'antd/es/input/Search';
-import './Navbar.css';
-import { useAuthContext } from '../Hooks/AuthProvider';
+import { useUser } from '../Hooks/AuthProvider';
 
 const { Header } = Layout;
 const menu_items = [
@@ -27,7 +26,7 @@ const menu_items = [
 ];
 
 const Navbar = () => {
-    const { user } = useAuthContext();
+    const { user } = useUser();
 
     return (
         <Header className="header">

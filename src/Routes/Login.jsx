@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { useLogin } from "../api/auth";
 import LogoSvg from '../assets/logo.svg'; // SVG hier importieren
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../Hooks/AuthProvider";
+import { useUser } from "../Hooks/AuthProvider";
 
 export const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const login = useLogin();
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuthContext();
+    const { user, isAuthenticated } = useUser();
 
     useEffect(() => {
         if (isAuthenticated) {

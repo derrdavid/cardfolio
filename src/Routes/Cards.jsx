@@ -1,21 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { use, useEffect } from "react";
 import { Card, Select, List, Flex, Typography } from "antd";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCardFiltering } from "../Hooks/useCardFiltering";
+import { useCardsData } from "../api/pokemon_tcg_service";
 import Search from "antd/es/transfer/search";
-import { fetchCards, fetchSets } from "../api/pokemon_tcg_service";
 
-export const Cards = ({ set }) => {
+export const Cards = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { locationSet } = location.state || {};
-    
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [loading, setLoading] = useState(true);
-    const [cards, setCards] = useState([]);
-    const [sets, setSets] = useState([]);
+    const { id } = useParams();
+
+    // React Query Hook
+    const { data: cards, isLoading } = useCardsData(`?q=set.id:${id}&orderBy=id`);
+
+    useEffect(() => { setSortType(SORT_TYPES.ID_ASC) }, [isLoading])
 
     // Card Filtering Hook
     const {
@@ -24,35 +21,15 @@ export const Cards = ({ set }) => {
         setSortType,
         setFilterType,
         SORT_TYPES
-    } = useCardFiltering(cards);
+    } = useCardFiltering(cards || []);
 
-    // Karten laden
-    const loadCards = useCallback(() => {
-        setLoading(true);
-        const setFilter = locationSet?.id ? `&q=set.id:${locationSet.id}` : "";
-        
-        fetchCards(`?page=${page}${setFilter}&orderBy=id`)
-            .then((data) => {
-                if (data.data.length === 0) {
-                    setHasMore(false);
-                } else {
-                    setCards(prevCards => 
-                        page === 1 ? data.data : [...prevCards, ...data.data]
-                    );
-                }
-            })
-            .finally(() => setLoading(false));
-    }, [page, locationSet]);
-
-    // Initialer Load
-    useEffect(() => {
-        loadCards();
-    }, [loadCards]);
-
-    // Sets laden
-    useEffect(() => {
-        fetchSets("orderBy=id").then((data) => setSets(data.data));
-    }, []);
+    // Sortieroptionen verwenden SORT_TYPES
+    const sortOptions = [
+        { value: SORT_TYPES.NAME_ASC, label: 'Name (A-Z)' },
+        { value: SORT_TYPES.NAME_DESC, label: 'Name (Z-A)' },
+        { value: SORT_TYPES.ID_ASC, label: 'ID (asc)' },
+        { value: SORT_TYPES.ID_DESC, label: 'ID (desc)' }
+    ];
 
     return (
         <Flex vertical gap="large">
@@ -67,36 +44,29 @@ export const Cards = ({ set }) => {
                     onChange={setSortType}
                     style={{ width: 200 }}
                 >
-                    <Option value={SORT_TYPES.NAME_ASC}>Name (A-Z)</Option>
-                    <Option value={SORT_TYPES.NAME_DESC}>Name (Z-A)</Option>
-                    <Option value={SORT_TYPES.ID_ASC}>ID (aufsteigend)</Option>
-                    <Option value={SORT_TYPES.ID_DESC}>ID (absteigend)</Option>
+                    {sortOptions.map(({ value, label }) => (
+                        <Option key={value} value={value}>{label}</Option>
+                    ))}
                 </Select>
             </Flex>
 
-            <InfiniteScroll
-                dataLength={filteredCards.length}
-                next={() => setPage(p => p + 1)}
-                hasMore={hasMore}
-            >
-                <List
-                    loading={loading}
-                    grid={{ gutter: 16, column: 6 }}
-                    dataSource={filteredCards}
-                    renderItem={(item) => (
-                        <List.Item>
-                            <Card
-                                hoverable
-                                onClick={() => navigate(`/card/${item.id}`)}
-                                cover={<img src={item.images.small} alt={item.name} />}
-                            >
-                                <Typography>#{item.number}</Typography>
-                                <Card.Meta title={item.name} />
-                            </Card>
-                        </List.Item>
-                    )}
-                />
-            </InfiniteScroll>
+            <List
+                loading={isLoading}
+                grid={{ gutter: 16, column: 6 }}
+                dataSource={filteredCards}
+                renderItem={(item) => (
+                    <List.Item>
+                        <Card
+                            hoverable
+                            onClick={() => navigate(`/card/${item.id}`)}
+                            cover={<img src={item.images.small} alt={item.name} />}
+                        >
+                            <Typography>#{item.number}</Typography>
+                            <Card.Meta title={item.name} />
+                        </Card>
+                    </List.Item>
+                )}
+            />
         </Flex>
     );
 };
