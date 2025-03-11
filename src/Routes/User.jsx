@@ -1,5 +1,4 @@
 import { Button, Flex } from "antd";
-import { useUser } from "../Hooks/AuthProvider";
 import { useMemo, useState } from "react";
 
 
@@ -22,7 +21,6 @@ export const User = () => {
 
 
 
-    const { user } = useUser()
     return (
         <div>
             <Button onClick={() => setNum(num + 1)}>{num}</Button>
