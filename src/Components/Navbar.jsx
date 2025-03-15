@@ -4,6 +4,7 @@ import { HomeFilled, AppstoreFilled, OrderedListOutlined } from '@ant-design/ico
 import { Link } from 'react-router-dom';
 import Logo from '../assets/logo.svg';
 import Search from 'antd/es/input/Search';
+import { useAuth } from '../Hooks/AuthProvider';
 
 const { Header } = Layout;
 const menu_items = [
@@ -25,11 +26,12 @@ const menu_items = [
 ];
 
 const Navbar = () => {
+    const { user } = useAuth();
 
     return (
         <Header className="header">
             <Link style={{ color: "black" }} to="/"><span style={{ display: "Flex", gap: ".2rem", fontWeight: "600", fontSize: "1rem" }}><img src={Logo} style={{ width: "2rem" }}></img>cardfolio</span></Link>
-            <Search className='header__search' placeholder='Search for a card'/>
+            <Search className='header__search' placeholder='Search for a card' />
             <Menu mode="horizontal" defaultSelectedKeys={['1']} items={menu_items} className='header__menu' />
             <Link className='avatarLink' to="/user"><Avatar style={{ width: 40, height: 40, backgroundColor: '#fde3cf', color: '#f56a00' }}>{user.username}</Avatar></Link>
         </Header>

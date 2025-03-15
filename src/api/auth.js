@@ -64,13 +64,12 @@ const useRegister = () => {
     });
 };
 
-// Login
 const useLogin = () => {
     return useMutation({
         mutationKey: ['login'],
-        mutationFn: ({ username, password }) => {
+        mutationFn: async ({ username, password }) => {
             try {
-                return fetch(BASE_URL + "/login", {
+                const res = await fetch(BASE_URL + "/login", {
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -79,18 +78,22 @@ const useLogin = () => {
                         username: username,
                         password: password
                     })
-                })
-                    .then(res => {
-                        const token = res.headers.get('Authorization').split(' ')[1];
-                        const user = res.json()
-                        return {
-                            token: token,
-                            user: user
-                        }
-                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error('Login failed');
+                }
+                const token = res.headers.get('Authorization')?.split(' ')[1];
+                const data = await res.json();
+                const user = data.user;
+
+                return {
+                    token,
+                    user
+                };
             } catch (error) {
                 console.log(error.message);
-                throw error;
+                throw error; // Für react-query Fehlerbehandlung
             }
         }
     });

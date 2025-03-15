@@ -1,10 +1,12 @@
 import { Card, List, Typography, Flex } from 'antd';
 import { useSetData } from '../api/pokemon_tcg_service';
 import SetCard from '../Components/SetCard';
+import { useAuth } from '../Hooks/AuthProvider';
 
 const { Title } = Typography;
 
 const Home = () => {
+  const { user } = useAuth();
   const { data: sets, isPending: loading, isError } = useSetData('?orderBy=-releaseDate&pageSize=6');
 
   return (
@@ -49,7 +51,7 @@ const SetsList = ({ title, data, renderItem, gridConfig, itemClick }) => (
 const StatsSection = ({ stats }) => (
   <Flex className="stats-section" gap="middle">
     {stats.map((item, idx) => (
-      <Card key={idx} className="card" title={item.title} style={{backgroundColor: "white"}}>
+      <Card key={idx} className="card" title={item.title} style={{ backgroundColor: "white" }}>
         <Card.Meta title={item.metaTitle} description={item.metaDescription} />
       </Card>
     ))}

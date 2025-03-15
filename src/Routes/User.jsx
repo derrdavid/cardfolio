@@ -1,5 +1,6 @@
 import { Button, Flex } from "antd";
 import { useMemo, useState } from "react";
+import { useAuth } from "../Hooks/AuthProvider";
 
 
 export const initialItems = new Array(30_000_000).fill(0).map((_, i) => {
@@ -11,6 +12,7 @@ export const initialItems = new Array(30_000_000).fill(0).map((_, i) => {
 
 
 export const User = () => {
+    const { user } = useAuth();
     const [num, setNum] = useState(0);
     const [items] = useState(initialItems);
 

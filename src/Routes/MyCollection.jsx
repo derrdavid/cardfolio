@@ -1,11 +1,12 @@
 import { List, Spin, Typography, Divider } from "antd";
 import Card3D from "../Components/Card3D";
+import { useAuth } from "../Hooks/AuthProvider";
 
 const { Title } = Typography;
 
 
 export const MyCollection = () => {
-    console.log(user)
+    const { user } = useAuth();
     return (
         <div style={{ padding: '24px' }}>
             <Title level={1}>Meine Sammlung</Title>

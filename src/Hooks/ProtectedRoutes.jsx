@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Layout, Spin } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../Components/Navbar';
-import { useAuth } from './AuthProvider'; 
+import { useAuth } from './AuthProvider';
 
 export const ProtectedRoutes = ({ publicRoutes }) => {
     const { user, isLoading } = useAuth();
@@ -13,13 +13,18 @@ export const ProtectedRoutes = ({ publicRoutes }) => {
         return <Spin size="large" />;
     }
 
+    if (user && isPublicRoute) {
+        const redirectTo = location.state?.from?.pathname || '/';
+        return <Navigate to={redirectTo} replace />;
+    }
+
     if (!user && !isPublicRoute) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" replace state={{ from: location }} />;
     }
 
     return (
         <Layout>
-            <Navbar />
+            {!isPublicRoute && <Navbar />} 
             <Content className="content-wrapper">
                 <Outlet />
             </Content>

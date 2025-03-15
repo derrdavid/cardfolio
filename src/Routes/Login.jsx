@@ -1,6 +1,6 @@
 import { Button, Flex, Form, Input } from "antd";
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../Hooks/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -8,9 +8,14 @@ export const Login = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const { handleLogin, isLoading } = useAuth();
+    const { user, handleLogin, isLoading } = useAuth();
 
-    // Einheitliches Styling für Container und Form
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user])
+
     const containerStyle = {
         height: 'calc(100vh - 64px)',
         width: '100%',

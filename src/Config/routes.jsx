@@ -13,45 +13,18 @@ import { ProtectedRoutes } from '../Hooks/ProtectedRoutes';
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <ProtectedRoutes publicRoutes={['login', 'register']} />,
+        element: <ProtectedRoutes publicRoutes={['/login', '/register']} />,
         children: [
-            {
-                path: '/',
-                element: <Home />,
-            },
-            {
-                path: '/card/:id',
-                element: <CardDetails />,
-            },
-            {
-                path: '/sets',
-                element: <Sets />,
-            },
-            {
-                path: '/user',
-                element: <User />,
-            },
-            {
-                path: '/cards/:id',
-                element: <Cards />,
-            },
-            {
-                path: '/collection',
-                element: <MyCollection />,
-            }
-        ]
-    },
-    {
-        path: '/login',
-        element: <Login />,
-    },
-    {
-        path: '/register',
-        element: <Register />,
-    },
-    {
-        path: "*",
-        element: <NotFound />,
+            { path: '/', element: <Home /> },
+            { path: '/card/:id', element: <CardDetails /> },
+            { path: '/sets', element: <Sets /> },
+            { path: '/user', element: <User /> },
+            { path: '/cards/:id', element: <Cards /> },
+            { path: '/collection', element: <MyCollection /> },
+            { path: '/login', element: <Login /> },
+            { path: '/register', element: <Register /> },
+            { path: '*', element: <NotFound /> },
+        ],
     },
 ]);
 
