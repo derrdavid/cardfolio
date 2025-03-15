@@ -1,74 +1,70 @@
-import { Button, Flex, Form, Image, Input } from "antd";
+import { Button, Flex, Form, Input } from "antd";
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
-import { useState, useEffect } from "react";
-import { useLogin } from "../api/auth";
-import LogoSvg from '../assets/logo.svg'; // SVG hier importieren
+import { useState } from "react";
+import { useAuth } from "../Hooks/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const login = useLogin();
-    const navigate = useNavigate();
+    const { handleLogin, isLoading } = useAuth();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/');
-        }
-    }, [isAuthenticated, navigate]);
+    // Einheitliches Styling für Container und Form
+    const containerStyle = {
+        height: 'calc(100vh - 64px)',
+        width: '100%',
+    };
 
-    const handleAuthenticate = async () => {
-        try {
-            await login.mutateAsync({ username: username, password: password });
-            navigate('/'); // Nach erfolgreichem Login zur Home-Route
-        } catch (error) {
-            console.error('Login fehlgeschlagen');
-        }
-    }
+    const formStyle = {
+        width: '90%',
+        maxWidth: '400px',
+        padding: '2rem',
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    };
 
     return (
-        <Flex
-            style={{
-                minHeight: '50vh',
-                padding: '20px'
-            }}
-            vertical
-            justify="center"
-            align="center"
-        >
-            <img src={LogoSvg} alt="Cardfolio Logo" style={{ width: '5rem', height: '5rem' }} />
-            <h1 style={{ textAlign: 'center' }}>cardfolio</h1>
-            <Form gap="middle" style={{
-                width: '100%',
-                maxWidth: '400px',
-                gap: '0.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '2rem',
-            }}>
-                <h2 style={{ textAlign: 'center' }}>Login</h2>
-                <Input
-                    value={username}
-                    autoComplete="username"
-                    onChange={(val) => setUsername(val.target.value)}
-                    size="large"
-                    placeholder="Benutzername"
-                    prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
-                />
-                <Input.Password
-                    value={password}
-                    autoComplete="current-password"
-                    onChange={(val) => setPassword(val.target.value)}
-                    size="large"
-                    placeholder="Passwort"
-                    iconRender={(visible) => (
-                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                    )}
-                />
-                <Button type="primary" size="large" onClick={(() => { handleAuthenticate(username, password) })}>
-                    Anmelden
-                </Button>
+        <Flex style={containerStyle} vertical justify="center" align="center">
+            <Form style={formStyle}>
+                <Flex vertical gap="middle">
+                    <h1 style={{ textAlign: 'center', margin: 0 }}>Login</h1>
+                    <Input
+                        value={username}
+                        autoComplete="username"
+                        onChange={(e) => setUsername(e.target.value)}
+                        size="large"
+                        placeholder="Benutzername"
+                        prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
+                    />
+                    <Input.Password
+                        value={password}
+                        autoComplete="current-password"
+                        onChange={(e) => setPassword(e.target.value)}
+                        size="large"
+                        placeholder="Passwort"
+                        iconRender={(visible) =>
+                            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                        }
+                    />
+                    <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => handleLogin(username, password)}
+                        loading={isLoading}
+                    >
+                        Login
+                    </Button>
+                    <Button
+                        type="default"
+                        size="large"
+                        onClick={() => navigate('/register')}
+                    >
+                        Register
+                    </Button>
+                </Flex>
             </Form>
         </Flex>
     );
-}
+};

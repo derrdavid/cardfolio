@@ -2,8 +2,11 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Layout, Spin } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../Components/Navbar';
+import { useAuth } from './AuthProvider';
+import { useLayoutEffect } from 'react';
 
 export const ProtectedRoutes = ({ publicRoutes }) => {
+    const { user, isLoading } = useAuth();
     const location = useLocation();
 
     if (isLoading) {

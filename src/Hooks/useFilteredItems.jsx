@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { SORT_TYPES, DEFAULT_SORT, baseSortFunctions } from '../Utils/baseSortFunctions';
+import { SORT_TYPES, DEFAULT_SORT, baseSortFunctions } from '../utils/baseSortFunctions';
 
 export const useFilteredItems = (
     items = [],
