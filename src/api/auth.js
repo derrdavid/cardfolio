@@ -30,26 +30,35 @@ const useRefresh = () => {
 const useRegister = () => {
     return useMutation({
         mutationKey: ['register'],
-        mutationFn: ({ username, password, email }) => {
+        mutationFn: async ({ username, password, email }) => {
+            console.log(username + password + email);
             try {
-                return fetch(BASE_URL + "/register", {
+                const response = await fetch(BASE_URL + "/register", {
                     method: 'POST',
-                    body: {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
                         username: username,
                         email: email,
                         password: password
-                    }
-                })
-                    .then(res => {
-                        const token = res.headers.get('Authorization').split(' ')[1];
-                        const user = res.json()
-                        return {
-                            token: token,
-                            user: user
-                        }
                     })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Registration failed');
+                }
+
+                const token = response.headers.get('Authorization')?.split(' ')[1];
+                const user = await response.json();
+
+                return {
+                    token: token,
+                    user: user
+                };
             } catch (error) {
-                console.log(error.message);
+                console.error(error.message);
+                throw error;
             }
         }
     });
@@ -59,17 +68,17 @@ const useRegister = () => {
 const useLogin = () => {
     return useMutation({
         mutationKey: ['login'],
-        mutationFn: ({ token, username, password }) => {
+        mutationFn: ({ username, password }) => {
             try {
                 return fetch(BASE_URL + "/login", {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     method: 'POST',
-                    body: {
+                    body: JSON.stringify({
                         username: username,
                         password: password
-                    }
+                    })
                 })
                     .then(res => {
                         const token = res.headers.get('Authorization').split(' ')[1];
@@ -81,6 +90,7 @@ const useLogin = () => {
                     })
             } catch (error) {
                 console.log(error.message);
+                throw error;
             }
         }
     });

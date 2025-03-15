@@ -51,7 +51,7 @@ export const Login = () => {
                     <Button
                         type="primary"
                         size="large"
-                        onClick={() => handleLogin(username, password)}
+                        onClick={() => handleLogin({ username, password })}
                         loading={isLoading}
                     >
                         Login

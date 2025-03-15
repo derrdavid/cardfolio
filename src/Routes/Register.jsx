@@ -71,7 +71,7 @@ export const Register = () => {
                     <Button
                         type="primary"
                         size="large"
-                        onClick={() => handleRegister(username, email, password, passwordConfirm)}
+                        onClick={() => handleRegister({ username, password, passwordConfirm, email })}
                         loading={isLoading}
                     >
                         Register

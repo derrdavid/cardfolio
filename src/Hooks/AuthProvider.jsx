@@ -13,7 +13,8 @@ export const AuthProvider = ({ children }) => {
 
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
         if (password !== passwordConfirm) {
-            throw error("Unübereinstimmende Passwörter.")
+            console.error("Unübereinstimmende Passwörter.");
+            return;
         }
         try {
             const res = await registerMutation.mutateAsync({ username, password, email });
