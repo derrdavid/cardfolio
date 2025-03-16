@@ -1,7 +1,7 @@
 import { Button, Flex, Form, Input } from "antd";
 import { UserOutlined, EyeTwoTone, EyeInvisibleOutlined, MailOutlined } from '@ant-design/icons';
 import { useState } from "react";
-import { useAuth } from "../Hooks/AuthProvider";
+import { useAuth } from "../Hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export const Register = () => {

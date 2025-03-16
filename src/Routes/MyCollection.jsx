@@ -1,6 +1,6 @@
 import { List, Spin, Typography, Divider } from "antd";
 import Card3D from "../Components/Card3D";
-import { useAuth } from "../Hooks/AuthProvider";
+import { useAuth } from "../Hooks/useAuth";
 
 const { Title } = Typography;
 

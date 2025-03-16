@@ -2,12 +2,22 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Layout, Spin } from 'antd';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../Components/Navbar';
-import { useAuth } from './AuthProvider';
+import { useAuth } from './useAuth';
+import { useEffect, useRef } from 'react';
 
 export const ProtectedRoutes = ({ publicRoutes }) => {
-    const { user, isLoading } = useAuth();
+    const { user, isLoading, handleRefresh } = useAuth();
     const location = useLocation();
     const isPublicRoute = publicRoutes.some(route => location.pathname.includes(route));
+    const prevPathRef = useRef(null);
+
+    useEffect(() => {
+        const isLoginRoute = prevPathRef.current === '/login' || prevPathRef.current === '/register';
+        if (!isPublicRoute && !isLoginRoute) {
+            handleRefresh();
+        }
+        prevPathRef.current = location.pathname;
+    }, [location]);
 
     if (isLoading) {
         return <Spin size="large" />;
@@ -24,7 +34,7 @@ export const ProtectedRoutes = ({ publicRoutes }) => {
 
     return (
         <Layout>
-            {!isPublicRoute && <Navbar />} 
+            {!isPublicRoute && <Navbar />}
             <Content className="content-wrapper">
                 <Outlet />
             </Content>

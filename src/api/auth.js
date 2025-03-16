@@ -4,25 +4,36 @@ const BASE_URL = "http://localhost:3000";
 
 // Token-Refresh
 const useRefresh = () => {
-    return useQuery({
-        queryKey: ['refresh-token'],
-        queryFn: ({ token }) => {
+    return useMutation({
+        mutationKey: ['refresh-token'],
+        mutationFn: async ({ token }) => {
             try {
-                return fetch(BASE_URL + "/register", {
+                const response = await fetch(BASE_URL + "/refresh", {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 })
-                    .then(res => {
-                        const res_token = res.headers.get('Authorization').split(' ')[1];
-                        return res_token;
-                    })
+
+                if (!response.ok) {
+                    throw new Error('Registration failed');
+                }
+
+                const res_token = response.headers.get('Authorization')?.split(' ')[1];
+
+
+                if (!res_token && response.ok) {
+                    return {
+                        token: token
+                    }
+                }
+                return {
+                    token: res_token
+                };
             } catch (error) {
                 console.log(error.message);
             }
         },
-        staleTime: 1000 * 60 * 55, // Token nach 55 Minuten erneuern
     });
 };
 
@@ -51,6 +62,8 @@ const useRegister = () => {
 
                 const token = response.headers.get('Authorization')?.split(' ')[1];
                 const user = await response.json();
+
+                console.log(token);
 
                 return {
                     token: token,
@@ -93,7 +106,7 @@ const useLogin = () => {
                 };
             } catch (error) {
                 console.log(error.message);
-                throw error; // Für react-query Fehlerbehandlung
+                throw error;
             }
         }
     });

@@ -4,7 +4,7 @@ import { HomeFilled, AppstoreFilled, OrderedListOutlined } from '@ant-design/ico
 import { Link } from 'react-router-dom';
 import Logo from '../assets/logo.svg';
 import Search from 'antd/es/input/Search';
-import { useAuth } from '../Hooks/AuthProvider';
+import { useAuth } from '../Hooks/useAuth';
 
 const { Header } = Layout;
 const menu_items = [

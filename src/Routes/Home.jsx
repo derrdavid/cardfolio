@@ -1,7 +1,7 @@
 import { Card, List, Typography, Flex } from 'antd';
 import { useSetData } from '../api/pokemon_tcg_service';
 import SetCard from '../Components/SetCard';
-import { useAuth } from '../Hooks/AuthProvider';
+import { useAuth } from '../Hooks/useAuth';
 
 const { Title } = Typography;
 

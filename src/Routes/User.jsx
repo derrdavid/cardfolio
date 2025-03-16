@@ -1,6 +1,6 @@
 import { Button, Flex } from "antd";
 import { useMemo, useState } from "react";
-import { useAuth } from "../Hooks/AuthProvider";
+import { useAuth } from "../Hooks/useAuth";
 
 
 export const initialItems = new Array(30_000_000).fill(0).map((_, i) => {

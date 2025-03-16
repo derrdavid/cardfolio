@@ -1,7 +1,7 @@
 import { createContext, useState, useContext } from "react";
-import { useLogin, useRegister } from "../api/auth";
+import { useLogin, useRefresh, useRegister } from "../api/auth";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
 
     const loginMutation = useLogin();
     const registerMutation = useRegister();
+    const refreshMutation = useRefresh();
 
 
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
@@ -40,14 +41,30 @@ export const AuthProvider = ({ children }) => {
         setToken("");
     };
 
+    const handleRefresh = async () => {
+        try {
+            const res = await refreshMutation.mutateAsync({ token });
+            console.log(res);
+            if (!res?.token) {
+                handleLogout();
+                return;
+            }
+
+            setToken(res.token);
+        } catch (error) {
+            console.error("Refresh fehlgeschlagen", error);
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             token,
             user,
-            isLoading: loginMutation.isLoading || registerMutation.isLoading,
-            error: loginMutation.error || registerMutation.error,
+            isLoading: loginMutation.isLoading || registerMutation.isLoading || refreshMutation.isLoading,
+            error: loginMutation.error || registerMutation.error || refreshMutation.error,
             handleLogin,
             handleRegister,
+            handleRefresh,
             handleLogout
         }}>
             {children}
@@ -55,6 +72,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export { AuthContext };
