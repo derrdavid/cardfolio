@@ -1,5 +1,5 @@
-import { createContext, useState, useContext } from "react";
-import { useLogin, useRefresh, useRegister } from "../api/auth";
+import { createContext, useState } from "react";
+import { useDeleteUser, useLogin, useRefresh, useRegister, useUpdateUser } from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -10,7 +10,8 @@ export const AuthProvider = ({ children }) => {
     const loginMutation = useLogin();
     const registerMutation = useRegister();
     const refreshMutation = useRefresh();
-
+    const updateUserMutation = useUpdateUser();
+    const deleteUserMutation = useDeleteUser();
 
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
         if (password !== passwordConfirm) {
@@ -56,6 +57,24 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const handleUpdateUser = async ({ username, password, email }) => {
+        try {
+            const new_user = await updateUserMutation.mutateAsync({ username, email, password });
+            setUser(new_user);
+        } catch (error) {
+            console.error("Update User fehlgeschlagen", error);
+        }
+    }
+
+    const handleDeleteUser = async ({ username, password, email }) => {
+        try {
+            deleteUserMutation.mutate({ username, email, password });
+            handleLogout();
+        } catch (error) {
+            console.error("Delete User fehlgeschlagen", error);
+        }
+    }
+
     return (
         <AuthContext.Provider value={{
             token,
@@ -65,7 +84,9 @@ export const AuthProvider = ({ children }) => {
             handleLogin,
             handleRegister,
             handleRefresh,
-            handleLogout
+            handleLogout,
+            handleUpdateUser,
+            handleDeleteUser
         }}>
             {children}
         </AuthContext.Provider>

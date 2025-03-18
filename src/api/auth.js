@@ -42,7 +42,6 @@ const useRegister = () => {
     return useMutation({
         mutationKey: ['register'],
         mutationFn: async ({ username, password, email }) => {
-            console.log(username + password + email);
             try {
                 const response = await fetch(BASE_URL + "/register", {
                     method: 'POST',
@@ -112,4 +111,61 @@ const useLogin = () => {
     });
 };
 
-export { useRefresh, useRegister, useLogin };
+const useUpdateUser = () => {
+    return useMutation({
+        mutationKey: ['delete_user'],
+        mutationFn: async ({ username, password, email }) => {
+            if (!username || !email || !password) {
+                throw new Error("Alle Felder sind erforderlich.");
+            }
+            try {
+                const response = await fetch(BASE_URL + "/user", {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                return response.data;
+            } catch (error) {
+                throw new Error(error.response?.data?.error || "Update fehlgeschlagen");
+            }
+        }
+    });
+};
+
+const useDeleteUser = () => {
+    return useMutation({
+        mutationKey: ['update_user'],
+        mutationFn: async ({ username, password, email }) => {
+            if (!username || !email || !password) {
+                throw new Error("Alle Felder sind erforderlich.");
+            }
+            try {
+                const response = await fetch(BASE_URL + "/user", {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                return response.data;
+            } catch (error) {
+                throw new Error(error.response?.data?.error || "Löschen fehlgeschlagen");
+            }
+        }
+    })
+};
+
+
+export { useRefresh, useRegister, useLogin, useUpdateUser, useDeleteUser };
