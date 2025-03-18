@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { useDeleteUser, useLogin, useRefresh, useRegister, useUpdateUser } from "../api/auth";
+import { useDeleteUser, useLogin, useRefresh, useRegister, useUpdateUser, useUpdateUserPassword } from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const refreshMutation = useRefresh();
     const updateUserMutation = useUpdateUser();
     const deleteUserMutation = useDeleteUser();
+    const updateUserPasswordMutation = useUpdateUserPassword();
 
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
         if (password !== passwordConfirm) {
@@ -45,7 +46,6 @@ export const AuthProvider = ({ children }) => {
     const handleRefresh = async () => {
         try {
             const res = await refreshMutation.mutateAsync({ token });
-            console.log(res);
             if (!res?.token) {
                 handleLogout();
                 return;
@@ -57,18 +57,30 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleUpdateUser = async ({ username, password, email }) => {
+    const handleUpdateUser = async ({ password, email }) => {
+        const { id } = user;
         try {
-            const new_user = await updateUserMutation.mutateAsync({ username, email, password });
+            const new_user = await updateUserMutation.mutateAsync({ token, id, email, password });
             setUser(new_user);
         } catch (error) {
             console.error("Update User fehlgeschlagen", error);
         }
     }
 
-    const handleDeleteUser = async ({ username, password, email }) => {
+    const handleUpdateUserPassword = async ({ password, new_password }) => {
+        const { id } = user;
         try {
-            deleteUserMutation.mutate({ username, email, password });
+            const new_user = await updateUserPasswordMutation.mutateAsync({ token, id, password, new_password });
+            setUser(new_user);
+        } catch (error) {
+            console.error("Update User fehlgeschlagen", error);
+        }
+    }
+
+    const handleDeleteUser = async ({ password }) => {
+        const { id } = user;
+        try {
+            deleteUserMutation.mutate({ token, id, password });
             handleLogout();
         } catch (error) {
             console.error("Delete User fehlgeschlagen", error);
@@ -86,6 +98,7 @@ export const AuthProvider = ({ children }) => {
             handleRefresh,
             handleLogout,
             handleUpdateUser,
+            handleUpdateUserPassword,
             handleDeleteUser
         }}>
             {children}

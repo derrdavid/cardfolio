@@ -4,8 +4,6 @@ import {
     DeleteOutlined,
     LogoutOutlined,
     MailOutlined,
-    SaveOutlined,
-    CloseOutlined,
     LockOutlined
 } from "@ant-design/icons";
 import {
@@ -20,9 +18,10 @@ import {
     Divider,
     message,
     Popconfirm,
-    theme
+    theme,
+    Tabs
 } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../Hooks/useAuth";
 
 const { Title, Text } = Typography;
@@ -30,177 +29,229 @@ const { useToken } = theme;
 
 export const User = () => {
     const { token } = useToken();
-    const { user, handleLogout, handleUpdateUser, handleDeleteUser } = useAuth();
+    const { user, handleLogout, handleUpdateUser, handleDeleteUser, handleUpdateUserPassword } = useAuth();
 
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("profile");
 
-    const handleEdit = () => {
-        setIsEditModalOpen(true);
-    }
+    const showModal = (tab) => {
+        form.resetFields();
+        setActiveTab(tab);
+        setIsModalOpen(true);
+    };
 
-    const handleConfirmUpdate = async () => {
+    // Dynamisch Formularfelder validieren basierend auf aktivem Tab
+    useEffect(() => {
+        if (isModalOpen) {
+            // Formular neu validieren wenn Tab wechselt
+            form.validateFields(['password', 'currentPassword', 'newPassword', 'confirmPassword'].filter(Boolean));
+        }
+    }, [activeTab, form, isModalOpen]);
+
+    const handleSave = async () => {
         try {
-            const values = await form.validateFields(); // Holt die Werte aus der Form
-            if (values.password !== values.passwordConfirm) {
-                message.error("Die Passwörter stimmen nicht überein.");
-                return;
+            setLoading(true);
+            // Nur Felder für den aktiven Tab validieren
+            const values = await form.validateFields(
+                activeTab === 'profile'
+                    ? ['username', 'email', 'password']
+                    : ['currentPassword', 'newPassword', 'confirmPassword']
+            );
+
+            if (activeTab === "profile") {
+                await handleUpdateUser({
+                    username: values.username,
+                    email: values.email,
+                    password: values.password,
+                });
+                message.success("Profile updated!");
             }
 
-            // update Password und email nur möglich
-            await handleUpdateUser({
-                username: values.username,
-                email: values.email,
-                password: values.password,
-            });
+            if (activeTab === "password") {
+                if (values.newPassword !== values.confirmPassword) {
+                    throw new Error("Passwords do not match");
+                }
 
-            message.success("Profil erfolgreich aktualisiert!");
-            setIsEditModalOpen(false);
+                await handleUpdateUserPassword({
+                    password: values.currentPassword,
+                    new_password: values.newPassword,
+                });
+                message.success("Password changed!");
+            }
+
+            setIsModalOpen(false);
         } catch (error) {
-            message.error("Fehler beim Aktualisieren des Profils.");
+            message.error(error.message || "Update failed");
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleConfirmDeletion = async () => {
-        try {
-            await handleDeleteUser({
-                username: user.username,
-                email: user.email,
-                // password Confirm nötig
-            });
+    // Profilreiter mit conditionaler Validierung
+    const profileTab = (
+        <Form.Item noStyle>
+            <Form.Item
+                name="username"
+                label="Username"
+            >
+                <Input disabled={true} prefix={<UserOutlined />} style={{ color: token.colorText }} />
+            </Form.Item>
+            <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                    { required: true, message: "Required field" },
+                    { type: 'email', message: "Invalid email" }
+                ]}
+            >
+                <Input prefix={<MailOutlined />} />
+            </Form.Item>
+            <Form.Item
+                name="password"
+                label="Confirm password"
+                rules={[
+                    { required: activeTab === "profile", message: "Required field" }
+                ]}
+            >
+                <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+        </Form.Item>
+    );
 
-            message.success("Profil erfolgreich gelöscht.");
-            handleLogout();
-        } catch (error) {
-            message.error("Fehler beim Löschen des Profils.");
-        }
-    };
+    // Kennwort-Tab mit conditionaler Validierung
+    const passwordTab = (
+        <Form.Item noStyle>
+            <Form.Item
+                name="currentPassword"
+                label="Current password"
+                rules={[
+                    { required: activeTab === "password", message: "Required field" }
+                ]}
+            >
+                <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item
+                name="newPassword"
+                label="New password"
+                rules={[
+                    { required: activeTab === "password", message: "Required field" },
+                    { min: 8, message: "Min. 8 characters" }
+                ]}
+            >
+                <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item
+                name="confirmPassword"
+                label="Confirm password"
+                rules={[
+                    { required: activeTab === "password", message: "Required field" },
+                    ({ getFieldValue }) => ({
+                        validator(_, value) {
+                            if (activeTab !== "password" || !value || getFieldValue('newPassword') === value) {
+                                return Promise.resolve();
+                            }
+                            return Promise.reject("Passwords do not match");
+                        },
+                    }),
+                ]}
+            >
+                <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+        </Form.Item>
+    );
 
-
+    const items = [
+        {
+            key: "profile",
+            label: "Profile",
+            children: profileTab
+        },
+        {
+            key: "password",
+            label: "Change password",
+            children: passwordTab
+        },
+    ];
 
     return (
-        <Flex vertical gap="large" style={{ maxWidth: 800, margin: "24px auto", padding: "0 16px" }}>
-            <Card
-                bordered={false}
-                style={{
-                    borderRadius: token.borderRadiusLG,
-                    boxShadow: token.boxShadow
-                }}
-            >
-                <Flex vertical align="center" gap="middle">
-                    <Avatar
-                        size={96}
-                        icon={<UserOutlined />}
-                        style={{
-                            backgroundColor: token.colorPrimary,
-                            marginBottom: 16
-                        }}
-                    />
-                    <Title level={2} style={{ margin: 0 }}>{user.username}</Title>
-                    <Flex align="center" gap="small">
-                        <MailOutlined />
-                        <Text type="secondary">{user.email}</Text>
-                    </Flex>
+        <Card
+            bordered={false}
+            style={{
+                maxWidth: 600,
+                margin: "24px auto",
+                borderRadius: token.borderRadiusLG,
+                boxShadow: token.boxShadow
+            }}
+        >
+            <Flex vertical align="center" gap="middle">
+                <Avatar
+                    size={80}
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: token.colorPrimary }}
+                    alt={`${user.username}'s profile`}
+                />
+                <Title level={3} style={{ margin: 0 }}>{user.username}</Title>
+                <Text type="secondary">{user.email}</Text>
 
-                    <Divider />
+                <Divider style={{ margin: "12px 0" }} />
 
-                    <Flex gap="middle" wrap="wrap" justify="center">
+                <Flex gap="small" wrap="wrap" justify="center">
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => showModal("profile")}
+                    >
+                        Edit
+                    </Button>
+                    <Popconfirm
+                        title="Delete account?"
+                        description="This action cannot be undone."
+                        okText="Delete"
+                        cancelText="Cancel"
+                        onConfirm={handleDeleteUser}
+                    >
                         <Button
-                            type="primary"
-                            icon={<EditOutlined />}
-                            onClick={handleEdit}
+                            danger
+                            icon={<DeleteOutlined />}
                         >
-                            Edit Profile
+                            Delete
                         </Button>
-                        <Popconfirm
-                            title="Delete account"
-                            description="Are you sure you want to delete your account? This action cannot be undone."
-                            okText="Yes, delete"
-                            cancelText="Cancel"
-                            onConfirm={handleConfirmDeletion}
-                            okButtonProps={{ danger: true, loading }}
-                        >
-                            <Button
-                                danger
-                                icon={<DeleteOutlined />}
-                            >
-                                Delete Account
-                            </Button>
-                        </Popconfirm>
-                        <Button
-                            icon={<LogoutOutlined />}
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </Button>
-                    </Flex>
+                    </Popconfirm>
+                    <Button
+                        icon={<LogoutOutlined />}
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </Button>
                 </Flex>
-            </Card >
+            </Flex>
 
             <Modal
-                title="Edit Profile"
-                open={isEditModalOpen}
-                footer={null}
-                onCancel={() => setIsEditModalOpen(false)}
+                title={activeTab === "profile" ? "Edit profile" : "Change password"}
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onOk={handleSave}
+                okText="Save"
+                cancelText="Cancel"
+                confirmLoading={loading}
             >
                 <Form
                     form={form}
                     layout="vertical"
-                    onFinish={handleConfirmUpdate}
+                    initialValues={activeTab === "profile" ? {
+                        username: user.username,
+                        email: user.email
+                    } : {}}
                 >
-                    <Form.Item
-                        name="username"
-                        label="Username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
-                    >
-                        <Input prefix={<UserOutlined />} placeholder="Username" />
-                    </Form.Item>
-                    <Form.Item
-                        name="email"
-                        label="Email"
-                        rules={[
-                            { required: true, message: 'Please input your email!' },
-                            { type: 'email', message: 'Please enter a valid email!' }
-                        ]}
-                    >
-                        <Input prefix={<MailOutlined />} placeholder="Email" />
-                    </Form.Item>
-                    <Form.Item
-                        name="password"
-                        label="Password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
-                    >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Username" />
-                    </Form.Item>
-                    <Form.Item
-                        name="passwordConfirm"
-                        label="Confirm Password"
-                        rules={[{ required: true, message: 'Please confirm your password!' },
-                        ]}
-                    >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Username" />
-                    </Form.Item>
-                    <Form.Item>
-                        <Flex gap="small" justify="end">
-                            <Button
-                                icon={<CloseOutlined />}
-                                onClick={() => setIsEditModalOpen(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                loading={loading}
-                                icon={<SaveOutlined />}
-                            >
-                                Save Changes
-                            </Button>
-                        </Flex>
-                    </Form.Item>
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={setActiveTab}
+                        items={items}
+                    />
                 </Form>
             </Modal>
-        </Flex >
+        </Card>
     );
 };

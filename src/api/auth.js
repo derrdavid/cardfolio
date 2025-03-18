@@ -62,8 +62,6 @@ const useRegister = () => {
                 const token = response.headers.get('Authorization')?.split(' ')[1];
                 const user = await response.json();
 
-                console.log(token);
-
                 return {
                     token: token,
                     user: user
@@ -113,9 +111,10 @@ const useLogin = () => {
 
 const useUpdateUser = () => {
     return useMutation({
-        mutationKey: ['delete_user'],
-        mutationFn: async ({ username, password, email }) => {
-            if (!username || !email || !password) {
+        mutationKey: ['update_user'],
+        mutationFn: async ({ token, id, password, email }) => {
+
+            if (!id || !email || !password) {
                 throw new Error("Alle Felder sind erforderlich.");
             }
             try {
@@ -123,9 +122,10 @@ const useUpdateUser = () => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        username: username,
+                        id: id,
                         email: email,
                         password: password
                     })
@@ -139,26 +139,55 @@ const useUpdateUser = () => {
     });
 };
 
-const useDeleteUser = () => {
+const useUpdateUserPassword = () => {
     return useMutation({
         mutationKey: ['update_user'],
-        mutationFn: async ({ username, password, email }) => {
-            if (!username || !email || !password) {
+        mutationFn: async ({ token, id, password, new_password }) => {
+
+            if (!id || !password || !new_password) {
+                throw new Error("Alle Felder sind erforderlich.");
+            }
+            try {
+                const response = await fetch(BASE_URL + "/user/password", {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        password: password,
+                        new_password: new_password
+                    }),
+                });
+
+                return response.data;
+            } catch (error) {
+                throw new Error(error.response?.data?.error || "Update fehlgeschlagen");
+            }
+        }
+    });
+};
+
+const useDeleteUser = () => {
+    return useMutation({
+        mutationKey: ['delete_user'],
+        mutationFn: async ({ token, id, password }) => {
+            if (!id || !password) {
                 throw new Error("Alle Felder sind erforderlich.");
             }
             try {
                 const response = await fetch(BASE_URL + "/user", {
-                    method: 'PUT',
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        username: username,
-                        email: email,
+                        id: id,
                         password: password
                     })
                 });
-                
                 return response.data;
             } catch (error) {
                 throw new Error(error.response?.data?.error || "Löschen fehlgeschlagen");
@@ -168,4 +197,4 @@ const useDeleteUser = () => {
 };
 
 
-export { useRefresh, useRegister, useLogin, useUpdateUser, useDeleteUser };
+export { useRefresh, useRegister, useLogin, useUpdateUser, useDeleteUser, useUpdateUserPassword };
