@@ -1,16 +1,17 @@
 import React, { use, useEffect } from "react";
 import { Card, Select, List, Flex, Typography } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCardFiltering } from "../Hooks/useCardFiltering";
 import { useCardsData } from "../api/pokemon_tcg_service";
 import Search from "antd/es/transfer/search";
+import Title from "antd/es/typography/Title";
 
 export const Cards = () => {
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { state: set } = useLocation();
 
     // React Query Hook
-    const { data: cards, isLoading } = useCardsData(`?q=set.id:${id}&orderBy=id`);
+    const { data: cards, isLoading } = useCardsData(`?q=set.id:${set.id}&orderBy=id`);
 
     useEffect(() => { setSortType(SORT_TYPES.ID_ASC) }, [isLoading])
 
@@ -33,6 +34,8 @@ export const Cards = () => {
 
     return (
         <Flex vertical gap="large">
+            <Title level={1}>{set.name}</Title>
+
             <Flex gap="small">
                 <Search
                     placeholder="Search for a card"

@@ -6,7 +6,7 @@ const SetCard = (({ loading, item }) => {
     return (
         <Card
             loading={loading}
-            onClick={() => navigate(`/cards/${item.id}`)}
+            onClick={() => navigate(`/cards/${item.id}`, { state: item })}
             className="set-card"
             hoverable
             extra={

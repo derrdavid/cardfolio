@@ -8,7 +8,7 @@ import {
     SearchOutlined
 } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
-import Logo from '../assets/logo.svg';
+import Logo from '../assets/logo.png';
 
 const { Header } = Layout;
 const { Search } = Input;

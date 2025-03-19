@@ -1,30 +1,56 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb } from 'antd';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb, Popconfirm } from 'antd';
+import { ShoppingCartOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons';
 import { useCardsData } from '../api/pokemon_tcg_service';
 import Card3D from '../Components/Card3D';
 
 const { Title, Text } = Typography;
 
 const CardInfoList = ({ infoList }) => (
-    <List bordered>
+    <List bordered className="card-info-list">
         {infoList.map((item) => (
-            <List.Item>
-                <Text>{item.title}</Text>
-                <Text strong>{item.data}</Text>
+            <List.Item key={item.key} className="info-list-item">
+                <Text className="info-title">{item.title}</Text>
+                <Text strong className="info-data">{item.data}</Text>
             </List.Item>
         ))}
     </List>
 );
 
 const ActionButtons = () => (
-    <Flex gap="middle" horizontal>
-        <Button type="primary" size="large" style={{ width: '50%' }}>
-            Add
-        </Button>
-        <Button size="large" style={{ width: '50%' }}>
-            Buy
-        </Button>
+    <Flex gap="middle" horizontal className="action-buttons">
+        <Popconfirm
+            title="Add to collection"
+            description="Do you want to add this card to your collection?"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => console.log('Card added to collection')}
+        >
+            <Button
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                className="action-button"
+            >
+                Add
+            </Button>
+        </Popconfirm>
+        <Popconfirm
+            title="Buy this card"
+            description="Do you want to purchase this card?"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => console.log('Purchase initiated')}
+        >
+            <Button
+                size="large"
+                icon={<ShoppingCartOutlined />}
+                className="action-button"
+            >
+                Buy
+            </Button>
+        </Popconfirm>
     </Flex>
 );
 
@@ -42,7 +68,7 @@ export const CardDetails = () => {
 
     if (isLoading) {
         return (
-            <div className="card-details-container">
+            <div className="card-details-container loading-container">
                 <Spin size="large" />
             </div>
         );
@@ -51,7 +77,7 @@ export const CardDetails = () => {
     // Prüfen ob card und card.set existieren
     if (!card || !card.set) {
         return (
-            <div className="card-details-container">
+            <div className="card-details-container error-container">
                 <Text type="danger">Karte nicht gefunden</Text>
             </div>
         );
@@ -59,19 +85,35 @@ export const CardDetails = () => {
 
     return (
         <div className="card-details-container">
-            <Breadcrumb />
+            <Breadcrumb className="breadcrumb-nav">
+                <Breadcrumb.Item>
+                    <Link to="/">
+                        <HomeOutlined /> Home
+                    </Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/cards">Cards</Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>{card.name}</Breadcrumb.Item>
+            </Breadcrumb>
+
             <Divider />
-            <Title level={1}>
+
+            <Title level={1} className="card-title">
                 <span>
                     {card.name}{' '}
-                    <Text type="secondary">
+                    <Text type="secondary" className="card-code">
                         {card.set.ptcgoCode} {card.number}
                     </Text>
                 </span>
             </Title>
-            <Flex gap="large" justify="left">
-                <Card3D card={card} />
-                <Flex gap="middle" vertical style={{ width: '30vw' }}>
+
+            <Flex className="card-content" wrap="wrap" gap="large">
+                <div className="card-visual-container">
+                    <Card3D card={card} />
+                </div>
+
+                <Flex gap="middle" vertical className="card-info-container">
                     <CardInfoList infoList={cardInfo} />
                     <ActionButtons />
                 </Flex>

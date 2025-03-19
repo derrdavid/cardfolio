@@ -31,6 +31,7 @@ const Sets = () => {
   return (
     <Flex vertical gap="large">
       <Title level={1}>Browse Sets</Title>
+      
       <Flex gap="small">
         <Search
           placeholder="Search for a set"
