@@ -37,20 +37,24 @@ export const Cards = () => {
             <Title level={1}>{set.name}</Title>
 
             <Flex gap="small">
-                <Search
-                    placeholder="Search for a card"
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{flex: 2}}
-                />
-                <Select
-                    defaultValue={SORT_TYPES.ID_ASC}
-                    onChange={setSortType}
-                    style={{ flex: 1}}
-                >
-                    {sortOptions.map(({ value, label }) => (
-                        <Option key={value} value={value}>{label}</Option>
-                    ))}
-                </Select>
+                <div style={{ flex: 2 }}>
+                    <Search
+                        style={{ width: '100%' }}
+                        placeholder="Search for a card"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <Select
+                        style={{ width: '100%' }}
+                        defaultValue={SORT_TYPES.ID_ASC}
+                        onChange={setSortType}
+                    >
+                        {sortOptions.map(({ value, label }) => (
+                            <Option key={value} value={value}>{label}</Option>
+                        ))}
+                    </Select>
+                </div>
             </Flex>
 
             <List

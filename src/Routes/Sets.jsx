@@ -33,21 +33,24 @@ const Sets = () => {
       <Title level={1}>Browse Sets</Title>
 
       <Flex gap="small">
-        <Search
-          placeholder="Search for a set"
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{flex: 1}}
-        />
-
-        <Select
-          defaultValue={SORT_TYPES.DATE_DESC}
-          onChange={setSortType}
-          style={{flex: 2}}
+        <div style={{ flex: 2 }}>
+          <Search
+            style={{ width: '100%' }}
+            placeholder="Search for a card"
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <Select
+            style={{ width: '100%' }}
+            defaultValue={SORT_TYPES.ID_ASC}
+            onChange={setSortType}
           >
-          {sortOptions.map(({ value, label }) => (
-            <Option key={value} value={value}>{label}</Option>
-          ))}
-        </Select>
+            {sortOptions.map(({ value, label }) => (
+              <Option key={value} value={value}>{label}</Option>
+            ))}
+          </Select>
+        </div>
       </Flex>
 
       <List
