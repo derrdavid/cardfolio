@@ -33,7 +33,7 @@ export const ProtectedRoutes = ({ publicRoutes }) => {
     }
 
     return (
-        <Layout>
+        <Layout className='container'>
             {!isPublicRoute && <Navbar />}
             <Content className="content-wrapper">
                 <Outlet />

@@ -40,12 +40,12 @@ export const Cards = () => {
                 <Search
                     placeholder="Search for a card"
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: 300 }}
+                    style={{flex: 2}}
                 />
                 <Select
                     defaultValue={SORT_TYPES.ID_ASC}
                     onChange={setSortType}
-                    style={{ width: 200 }}
+                    style={{ flex: 1}}
                 >
                     {sortOptions.map(({ value, label }) => (
                         <Option key={value} value={value}>{label}</Option>
@@ -55,7 +55,7 @@ export const Cards = () => {
 
             <List
                 loading={isLoading}
-                grid={{ gutter: 16, column: 6 }}
+                grid={{ gutter: 8, xs: 2, sm: 3, md: 4, lg: 4, xl: 5, xxl: 6 }}
                 dataSource={filteredCards}
                 renderItem={(item) => (
                     <List.Item>

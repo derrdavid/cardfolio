@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const Sets = () => {
   const { data: sets, isLoading } = useSetData();
-  
+
   // Verwende den verbesserten Hook mit SORT_TYPES
   const {
     filteredSets,
@@ -31,19 +31,19 @@ const Sets = () => {
   return (
     <Flex vertical gap="large">
       <Title level={1}>Browse Sets</Title>
-      
+
       <Flex gap="small">
         <Search
           placeholder="Search for a set"
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: 300 }}
+          style={{flex: 1}}
         />
 
         <Select
           defaultValue={SORT_TYPES.DATE_DESC}
           onChange={setSortType}
-          style={{ width: 200 }}
-        >
+          style={{flex: 2}}
+          >
           {sortOptions.map(({ value, label }) => (
             <Option key={value} value={value}>{label}</Option>
           ))}
@@ -52,7 +52,7 @@ const Sets = () => {
 
       <List
         loading={isLoading}
-        grid={{ gutter: 16, column: 3 }}
+        grid={{ gutter: 8, xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 4 }}
         dataSource={filteredSets}
         renderItem={(item) => (
           <List.Item key={item.id}>

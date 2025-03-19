@@ -10,7 +10,7 @@ const Home = () => {
   const { data: sets, isPending: loading, isError } = useSetData('?orderBy=-releaseDate&pageSize=6');
 
   return (
-    <div className="dashboard-container">
+    <div>
       <Title level={1}>Hello {user.username} 👋</Title>
       <Flex gap="middle" vertical>
         <Card className="card" title="Estimated Collection Value">
@@ -25,7 +25,7 @@ const Home = () => {
         <SetsList
           title="Newest Sets"
           data={sets}
-          gridConfig={{ gutter: 16, column: 3 }}
+          gridConfig={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 3, xxl: 3 }}
           renderItem={(item) => <SetCard loading={loading} item={item} />}
         />
       </Flex>
@@ -51,7 +51,7 @@ const SetsList = ({ title, data, renderItem, gridConfig, itemClick }) => (
 const StatsSection = ({ stats }) => (
   <Flex className="stats-section" gap="middle">
     {stats.map((item, idx) => (
-      <Card key={idx} className="card" title={item.title} style={{ backgroundColor: "white" }}>
+      <Card key={idx} className="card" title={item.title}>
         <Card.Meta title={item.metaTitle} description={item.metaDescription} />
       </Card>
     ))}

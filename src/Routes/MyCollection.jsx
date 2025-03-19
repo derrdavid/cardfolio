@@ -1,38 +1,44 @@
-import { List, Spin, Typography, Divider } from "antd";
-import Card3D from "../Components/Card3D";
-import { useAuth } from "../Hooks/useAuth";
+import React from 'react';
+import { List, Spin, Typography, Divider, Flex } from 'antd';
+import Card3D from '../Components/Card3D';
+import { useAuth } from '../Hooks/useAuth';
 
-const { Title } = Typography;
-
+const { Title, Text } = Typography;
 
 export const MyCollection = () => {
     const { user } = useAuth();
+    const cardsBySet = {}; 
+
     return (
-        <div style={{ padding: '24px' }}>
-            <Title level={1}>Meine Sammlung</Title>
+        <div className="my-collection-container">
+            <Title level={1}>My Collection</Title>
             {Object.entries(cardsBySet).map(([setId, { setName, cards }]) => (
-                <div key={setId}>
+                <div key={setId} className="set-section">
                     <Divider orientation="left">
                         <Title level={2}>{setName}</Title>
                     </Divider>
                     <List
-                        grid={{ gutter: 16, column: 4 }}
+                        grid={{
+                            gutter: 16,
+                            xs: 1, // 1 Spalte für extra kleine Geräte
+                            sm: 2, // 2 Spalten für kleine Geräte
+                            md: 3, // 3 Spalten für mittlere Geräte
+                            lg: 4, // 4 Spalten für große Geräte
+                            xl: 4, // 4 Spalten für extra große Geräte
+                        }}
                         dataSource={cards}
                         renderItem={(card) => (
                             <List.Item key={card.id}>
-                                <Card3D card={card}>
-                                    <List.Item.Meta
-                                        title={card.name}
-                                        description={
-                                            <>
-                                                <p>Zustand: {card.condition}/5</p>
-                                                <p>Anzahl: {card.quantity}</p>
-                                                <p>Wert: {card.price}€</p>
-                                                <p>Hinzugefügt: {new Date(card.added_at).toLocaleDateString()}</p>
-                                            </>
-                                        }
-                                    />
-                                </Card3D>
+                                <Card3D card={card} />
+                                <div className="card-meta">
+                                    <Text strong>{card.name}</Text>
+                                    <Flex vertical>
+                                        <Text>Zustand: {card.condition}/5</Text>
+                                        <Text>Anzahl: {card.quantity}</Text>
+                                        <Text>Wert: {card.price}€</Text>
+                                        <Text>Hinzugefügt: {new Date(card.added_at).toLocaleDateString()}</Text>
+                                    </Flex>
+                                </div>
                             </List.Item>
                         )}
                     />
