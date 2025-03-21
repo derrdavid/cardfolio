@@ -4,6 +4,7 @@ import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb, Popconfirm }
 import { ShoppingCartOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons';
 import { useCardsData } from '../api/pokemon_tcg_service';
 import Card3D from '../Components/Card3D';
+import { useAuth } from '../Hooks/useAuth';
 
 const { Title, Text } = Typography;
 
@@ -55,6 +56,8 @@ const ActionButtons = () => (
 );
 
 export const CardDetails = () => {
+    const { user, handleAddCard } = useAuth();
+    console.log(user)
     const { id } = useParams();
     const { data: card, isLoading } = useCardsData(`/${id}`);
 

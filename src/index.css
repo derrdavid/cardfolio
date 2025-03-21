@@ -184,7 +184,8 @@ body{
 /* Dashboard.css */
 
 * {
-  font-family: "Poppins", sans-serif;
+  font-family: "JetBrains Mono", monospace !important;
+  font-optical-sizing: auto;
 }
 
 .dashboard-container {
