@@ -18,10 +18,6 @@ export const AuthProvider = ({ children }) => {
 
     const addCardMutation = addCard();
     const removeCardMutation = removeCard();
-    // Needs to pass token as parameter
-    const getAllCardsQuery = getAllCards(token);
-    // Can't initialize here without card_api_id
-    // We'll modify the handler function instead
 
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
         if (password !== passwordConfirm) {
@@ -127,7 +123,8 @@ export const AuthProvider = ({ children }) => {
     const handleGetAllCards = async () => {
         try {
             // No need to pass user as parameter, use refetch to get fresh data
-            const result = await getAllCardsQuery.refetch();
+            const cardQuery = getAllCards({ token });
+            const result = await cardQuery.refetch();
             setCards(result.data || []);
         } catch (error) {
             console.error("Failed to fetch all cards", error);
@@ -154,9 +151,9 @@ export const AuthProvider = ({ children }) => {
             user,
             cards,
             isLoading: loginMutation.isLoading || registerMutation.isLoading || refreshMutation.isLoading ||
-                addCardMutation.isLoading || removeCardMutation.isLoading || getAllCardsQuery.isLoading,
+                addCardMutation.isLoading || removeCardMutation.isLoading,
             error: loginMutation.error || registerMutation.error || refreshMutation.error ||
-                addCardMutation.error || removeCardMutation.error || getAllCardsQuery.error,
+                addCardMutation.error || removeCardMutation.error,
             handleLogin,
             handleRegister,
             handleRefresh,

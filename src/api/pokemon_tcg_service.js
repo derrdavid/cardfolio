@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-const API_BASE_URL = import.meta.env.VITE_TCG_API_BASE_URL;
+const API_BASE_URL = "https://api.pokemontcg.io/v2";
 
 export const useSetData = (params = '') => {
     return useQuery({
