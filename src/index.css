@@ -283,9 +283,11 @@ body{
 }
 
 .card-visual-container {
+  position: sticky;
   flex: 1 1 300px;
   max-width: 450px;
   min-width: 250px;
+  height: fit-content;
   display: flex;
   justify-content: center;
 }
@@ -343,4 +345,8 @@ body{
   .card-visual-container {
     max-width: 280px;
   }
+}
+
+.ant-input-prefix .anticon {
+  color: white !important;
 }

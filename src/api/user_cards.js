@@ -2,12 +2,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 const BASE_URL = "http://localhost:3000";
 
-const addCard = () => {
+const useAddCard = () => {
     return useMutation({
         mutationKey: ['user_cards'],
         mutationFn: async ({ token, user, card_api_id, set_api_id, condition, quantity = 1 }) => {
             try {
-                const response = await fetch(`${BASE_URL}/user`, {
+                const response = await fetch(`${BASE_URL}/cards`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -34,12 +34,12 @@ const addCard = () => {
     });
 };
 
-const removeCard = () => {
+const useRemoveCard = () => {
     return useMutation({
         mutationKey: ['user_cards'],
-        mutationFn: async ({ token, user, card }) => {
+        mutationFn: async ({ token, user, id }) => {
             try {
-                const response = await fetch(`${BASE_URL}/user`, {
+                const response = await fetch(`${BASE_URL}/cards`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const removeCard = () => {
                     },
                     body: JSON.stringify({
                         id: user.id,
-                        card_id: card.id
+                        card_id: id
                     })
                 });
 
@@ -63,12 +63,12 @@ const removeCard = () => {
     });
 };
 
-const getAllCards = (token) => {
+const useGetAllCards = (token) => {
     return useQuery({
         queryKey: ['user_cards'],
         queryFn: async () => {
             try {
-                const response = await fetch(`${BASE_URL}/user/sort`, {
+                const response = await fetch(`${BASE_URL}/cards/sort`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -84,16 +84,17 @@ const getAllCards = (token) => {
             } catch (error) {
                 throw new Error(error?.message || "Get all cards failed");
             }
-        }
+        },
+        enabled: !!token // Only run when token exists
     });
 };
 
-const getCard = (token, card_api_id) => {
+const useGetCard = (token, card_api_id) => {
     return useQuery({
         queryKey: ['user_cards', card_api_id],
         queryFn: async () => {
             try {
-                const response = await fetch(`${BASE_URL}/user/${card_api_id}`, {
+                const response = await fetch(`${BASE_URL}/cards/${card_api_id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -109,8 +110,10 @@ const getCard = (token, card_api_id) => {
             } catch (error) {
                 throw new Error(error?.message || "Get card failed");
             }
-        }
+        },
+        enabled: !!token,
+        ons
     });
 };
 
-export { addCard, removeCard, getAllCards, getCard };
+export { useAddCard, useRemoveCard, useGetAllCards, useGetCard };

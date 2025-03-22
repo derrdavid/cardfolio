@@ -33,7 +33,7 @@ const useRefresh = () => {
             } catch (error) {
                 console.log(error.message);
             }
-        },
+        }
     });
 };
 

@@ -13,11 +13,13 @@ export const ProtectedRoutes = ({ publicRoutes }) => {
 
     useEffect(() => {
         const isLoginRoute = prevPathRef.current === '/login' || prevPathRef.current === '/register';
-        if (!isPublicRoute && !isLoginRoute) {
+
+        if (!isPublicRoute && !isLoginRoute && !isLoading && user) {
             handleRefresh();
         }
+
         prevPathRef.current = location.pathname;
-    }, [location]);
+    }, [location, isLoading, user]);
 
     if (isLoading) {
         return <Spin size="large" />;

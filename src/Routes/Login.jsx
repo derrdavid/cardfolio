@@ -34,6 +34,10 @@ export const Login = () => {
         handleRegister(values);
     };
 
+    const containerStyle = {
+        minHeight: '100vh',
+    };
+
     const contentStyle = {
         width: '100%',
         maxWidth: '1200px',
@@ -54,7 +58,7 @@ export const Login = () => {
     };
 
     return (
-        <Flex justify="center" align="center">
+        <Flex style={containerStyle} justify="center" align="center">
             <Flex style={contentStyle} wrap="wrap" gap="large" justify="space-between" align="center">
                 <Flex vertical style={{ flex: 1, minWidth: '300px' }} gap="middle">
                     <Title style={{ fontSize: '3.5rem', margin: 0 }}>Cardfolio</Title>

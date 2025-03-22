@@ -1,14 +1,16 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import { useDeleteUser, useLogin, useRefresh, useRegister, useUpdateUser, useUpdateUserPassword } from "../api/auth";
-import { addCard, getAllCards, getCard, removeCard } from "../api/user_cards";
+import { useAddCard, useRemoveCard, useGetAllCards, useGetCard } from "../api/user_cards";
+import { useQueryClient } from '@tanstack/react-query';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [cards, setCards] = useState([]);
     const [token, setToken] = useState("");
+    const queryClient = useQueryClient();
 
+    // Auth mutations
     const loginMutation = useLogin();
     const registerMutation = useRegister();
     const refreshMutation = useRefresh();
@@ -16,9 +18,14 @@ export const AuthProvider = ({ children }) => {
     const deleteUserMutation = useDeleteUser();
     const updateUserPasswordMutation = useUpdateUserPassword();
 
-    const addCardMutation = addCard();
-    const removeCardMutation = removeCard();
+    // Card mutations
+    const addCardMutation = useAddCard();
+    const removeCardMutation = useRemoveCard();
 
+    // Card queries
+    const { data: cards = [], refetch: refetchAllCards } = useGetAllCards(token);
+
+    // Auth handlers
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
         if (password !== passwordConfirm) {
             console.error("Passwords do not match.");
@@ -46,7 +53,8 @@ export const AuthProvider = ({ children }) => {
     const handleLogout = () => {
         setUser(null);
         setToken("");
-        setCards([]);
+        // Cache leeren
+        queryClient.invalidateQueries(['user_cards']);
     };
 
     const handleRefresh = async () => {
@@ -56,13 +64,15 @@ export const AuthProvider = ({ children }) => {
                 handleLogout();
                 return;
             }
-
-            setToken(res.token);
+            if (token !== res.token) {
+                setToken(res.token);
+            }
         } catch (error) {
             console.error("Refresh failed", error);
         }
     };
 
+    // User management handlers
     const handleUpdateUser = async ({ password, email }) => {
         const { id } = user;
         try {
@@ -93,10 +103,11 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    // Card handlers
     const handleAddCard = async ({ card_api_id, set_api_id, condition, quantity }) => {
         try {
-            // Avoid passing user and token as they're available in context
-            const new_card = await addCardMutation.mutateAsync({
+            // Karte hinzufügen
+            const newCard = await addCardMutation.mutateAsync({
                 token,
                 user,
                 card_api_id,
@@ -104,68 +115,110 @@ export const AuthProvider = ({ children }) => {
                 condition,
                 quantity
             });
-            setCards([...cards, new_card]);
+
+            // Optimistic update - neue Karte zum lokalen State hinzufügen
+            // Dies ist optional, da React Query den Cache automatisch aktualisieren kann
+            queryClient.setQueryData(['user_cards'], (oldData) => {
+                if (!oldData) return [newCard];
+
+                // Prüfen, ob Karte bereits existiert (für Mengenupdates)
+                const existingCardIndex = oldData.findIndex(
+                    card => card.card_api_id === card_api_id
+                );
+
+                if (existingCardIndex !== -1) {
+                    // Bestehende Karte updaten
+                    const updatedData = [...oldData];
+                    updatedData[existingCardIndex] = newCard;
+                    return updatedData;
+                } else {
+                    // Neue Karte hinzufügen
+                    return [...oldData, newCard];
+                }
+            });
+
+            // Alternativ: Komplettes Refresh der Karten
+            // await refetchAllCards();
+
         } catch (error) {
             console.error("Failed to add card", error);
+            // Bei Fehler komplettes Refresh
+            refetchAllCards();
         }
     }
 
-    const handleRemoveCard = async ({ card }) => {
+    const handleRemoveCard = async ({ id }) => {
         try {
-            // Filter to keep cards that DON'T match the one being removed
-            setCards(cards.filter(item => item.id !== card.id));
-            await removeCardMutation.mutateAsync({ token, user, card });
+            // Optimistic update - Karte aus lokalem State entfernen
+            queryClient.setQueryData(['user_cards'], (oldData) => {
+                return oldData?.filter(card => card.id !== id) || [];
+            });
+
+            // API-Call zum Löschen
+            await removeCardMutation.mutateAsync({ token, user, id });
+
         } catch (error) {
             console.error("Failed to remove card", error);
+            // Bei Fehler komplettes Refresh
+            refetchAllCards();
         }
     }
 
-    const handleGetAllCards = async () => {
-        try {
-            // No need to pass user as parameter, use refetch to get fresh data
-            const cardQuery = getAllCards({ token });
-            const result = await cardQuery.refetch();
-            setCards(result.data || []);
-        } catch (error) {
-            console.error("Failed to fetch all cards", error);
-        }
-    };
-
+    // Get card from state by ID
     const handleGetCard = async (card_api_id) => {
+        // Methode 1: Aus dem lokalen Cache holen
+        const existingCard = cards.find(card => card.card_api_id === card_api_id);
+
+        if (existingCard) return existingCard;
+
+        // Methode 2: Falls nicht im Cache, einzelne Karte fetchen
         try {
-            // Use the getCard function directly with the necessary parameters
-            const cardQuery = getCard(token, card_api_id);
-            const result = await cardQuery.refetch();
-            // Only add the card if it's not already in the array
-            if (result.data && !cards.some(card => card.id === result.data.id)) {
-                setCards([...cards, result.data]);
-            }
+            const { data } = await queryClient.fetchQuery(
+                ['user_cards', card_api_id],
+                () => useGetCard(token, card_api_id).queryFn()
+            );
+            return data;
         } catch (error) {
-            console.error("Failed to fetch card", error);
+            console.error("Failed to get specific card", error);
+            return null;
         }
+    }
+
+    // Context value with grouped properties for better organization
+    const contextValue = {
+        // State
+        token,
+        user,
+        cards,
+
+        // Status flags
+        isLoading: loginMutation.isLoading || registerMutation.isLoading ||
+            refreshMutation.isLoading || addCardMutation.isLoading ||
+            removeCardMutation.isLoading,
+        error: loginMutation.error || registerMutation.error ||
+            refreshMutation.error || addCardMutation.error ||
+            removeCardMutation.error,
+
+        // Auth functions
+        handleLogin,
+        handleRegister,
+        handleRefresh,
+        handleLogout,
+
+        // User management functions
+        handleUpdateUser,
+        handleUpdateUserPassword,
+        handleDeleteUser,
+
+        // Card management functions
+        handleAddCard,
+        handleRemoveCard,
+        handleGetCard,
+        refetchAllCards // Für manuelles Refresh, falls nötig
     };
 
     return (
-        <AuthContext.Provider value={{
-            token,
-            user,
-            cards,
-            isLoading: loginMutation.isLoading || registerMutation.isLoading || refreshMutation.isLoading ||
-                addCardMutation.isLoading || removeCardMutation.isLoading,
-            error: loginMutation.error || registerMutation.error || refreshMutation.error ||
-                addCardMutation.error || removeCardMutation.error,
-            handleLogin,
-            handleRegister,
-            handleRefresh,
-            handleLogout,
-            handleUpdateUser,
-            handleUpdateUserPassword,
-            handleDeleteUser,
-            handleAddCard,
-            handleRemoveCard,
-            handleGetAllCards,
-            handleGetCard
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
