@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     const removeCardMutation = useRemoveCard();
 
     // Card queries
-    const { data: cards = [], refetch: refetchAllCards } = useGetAllCards(token);
+    const { data: cards = [], refetch: refetchAllCards, isSuccess } = useGetAllCards(token);
 
     // Auth handlers
     const handleRegister = async ({ username, password, passwordConfirm, email }) => {
@@ -116,29 +116,13 @@ export const AuthProvider = ({ children }) => {
                 quantity
             });
 
-            // Optimistic update - neue Karte zum lokalen State hinzufügen
-            // Dies ist optional, da React Query den Cache automatisch aktualisieren kann
-            queryClient.setQueryData(['user_cards'], (oldData) => {
-                if (!oldData) return [newCard];
+            queryClient.setQueryData(["cards"], (oldCards = []) =>
+                oldCards.map((card) =>
+                    card.id === newCard.id ? newCard : card
+                )
+            );
 
-                // Prüfen, ob Karte bereits existiert (für Mengenupdates)
-                const existingCardIndex = oldData.findIndex(
-                    card => card.card_api_id === card_api_id
-                );
-
-                if (existingCardIndex !== -1) {
-                    // Bestehende Karte updaten
-                    const updatedData = [...oldData];
-                    updatedData[existingCardIndex] = newCard;
-                    return updatedData;
-                } else {
-                    // Neue Karte hinzufügen
-                    return [...oldData, newCard];
-                }
-            });
-
-            // Alternativ: Komplettes Refresh der Karten
-            // await refetchAllCards();
+            return newCard[0];
 
         } catch (error) {
             console.error("Failed to add card", error);
@@ -164,20 +148,9 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    // Get card from state by ID
     const handleGetCard = async (card_api_id) => {
-        // Methode 1: Aus dem lokalen Cache holen
-        const existingCard = cards.find(card => card.card_api_id === card_api_id);
-
-        if (existingCard) return existingCard;
-
-        // Methode 2: Falls nicht im Cache, einzelne Karte fetchen
         try {
-            const { data } = await queryClient.fetchQuery(
-                ['user_cards', card_api_id],
-                () => useGetCard(token, card_api_id).queryFn()
-            );
-            return data;
+            return await cards.find(card => card.card_api_id === card_api_id);
         } catch (error) {
             console.error("Failed to get specific card", error);
             return null;

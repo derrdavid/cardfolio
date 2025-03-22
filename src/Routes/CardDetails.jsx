@@ -20,28 +20,31 @@ const CardInfoList = ({ infoList }) => (
     </List>
 );
 
-const CardCollectionTable = ({ conditions }) => {    
-    const updateQuantity = (id, value) =>
+const CardCollectionTable = ({ condition_list = [] }) => {
+    const { handleRemoveCard } = useAuth();
+
+    const updateQuantity = (id, value) => {
         //TODO UPDATE ROUTE 
-        setData();
+        console.log('Update quantity:', id, value);
+    };
 
     const deleteItem = (id) => {
         handleRemoveCard({ id })
             .then(() => {
                 message.success(`Card deleted!`);
-            })
+            });
     };
 
     return (
         <List bordered className="card-info-list">
-            {conditions.map(item => (
+            {condition_list.map(item => (
                 <List.Item key={item.id} className="info-list-item">
                     <Text className="info-title">{item.condition}</Text>
                     <Text strong className="info-data">
                         <InputNumber
                             min={0}
                             value={item.quantity}
-                            onChange={value => updateQuantity(item.key, value)}
+                            onChange={value => updateQuantity(item.id, value)}
                             size="small"
                         />
                         <Button
@@ -65,8 +68,13 @@ export const CardDetails = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        setUserCards(handleGetCard(id));
+        getCard();
     }, [cards]);
+
+    const getCard = async () => {
+        const userCard = await handleGetCard(id);
+        setUserCards(userCard);
+    }
 
     const addToCollection = () => {
         const values = form.getFieldsValue();
@@ -75,8 +83,12 @@ export const CardDetails = () => {
             set_api_id: card?.set?.id,
             condition: values.condition || 'Mint',
             quantity: values.quantity || 1
-        }).then(newCard => {
-            message.success(`${values.quantity}x ${card.name} - ${newCard.condition} added!`)
+        }).then((newCard) => {
+            setUserCards(newCard);
+            message.success(`${values.quantity}x ${card.name} - ${values.condition} added!`);
+            form.resetFields(); // Reset form after adding
+        }).catch(error => {
+            message.error(`Failed to add card: ${error.message}`);
         });
     };
 
@@ -102,6 +114,8 @@ export const CardDetails = () => {
             </div>
         );
     }
+
+    // Extrahiere die conditions aus userCards, falls vorhanden
 
     const ActionButtons = () => (
         <Flex gap="middle" vertical className="action-buttons">
@@ -189,7 +203,7 @@ export const CardDetails = () => {
                     <ActionButtons />
                     <Divider />
                     <Title style={{ margin: 0, fontWeight: 200 }} level={5} type='secondary'>COLLECTION</Title>
-                    {userCards && <CardCollectionTable conditions={userCards.conditions} />}
+                    {userCards && <CardCollectionTable condition_list={userCards.conditions} />}
                 </Flex>
             </Flex>
         </div>

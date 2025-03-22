@@ -112,7 +112,6 @@ const useGetCard = (token, card_api_id) => {
             }
         },
         enabled: !!token,
-        ons
     });
 };
 
