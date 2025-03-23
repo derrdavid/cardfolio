@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Typography, Button, Divider, Spin, List, Flex, Breadcrumb, Popconfirm, InputNumber, Select, Form, Card, Space, Input, message } from 'antd';
 import { ShoppingCartOutlined, PlusOutlined, HomeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
@@ -20,31 +20,72 @@ const CardInfoList = ({ infoList }) => (
     </List>
 );
 
-const CardCollectionTable = ({ condition_list = [] }) => {
-    const { handleRemoveCard } = useAuth();
+const conditionOrder = [
+    "Mint",
+    "Near Mint",
+    "Excellent",
+    "Good",
+    "Light Played",
+    "Played",
+    "Poor"
+];
+
+const CardCollectionTable = ({ condition_list = [], onCardUpdated }) => {
+    const { handleRemoveCard, handleUpdateCard } = useAuth();
+    const tempValueRef = useRef({}); // Ref-Objekt, um Werte für jede ID zu speichern
+
+    const sorted_list = [...condition_list].sort((a, b) => {
+        const indexA = conditionOrder.indexOf(a.condition);
+        const indexB = conditionOrder.indexOf(b.condition);
+        return indexA - indexB;
+    });
 
     const updateQuantity = (id, value) => {
-        //TODO UPDATE ROUTE 
-        console.log('Update quantity:', id, value);
+        console.log(value);
+        handleUpdateCard({
+            id: id,
+            quantity: value,
+        })
+            .then((updatedCard) => {
+                message.success(`Card updated!`);
+                // Call the callback with the updated card data
+                if (onCardUpdated) {
+                    onCardUpdated(updatedCard);
+                }
+            })
+            .catch((error) => {
+                console.error('Update failed:', error);
+                message.error('Failed to update card');
+            });
     };
 
     const deleteItem = (id) => {
         handleRemoveCard({ id })
-            .then(() => {
+            .then((result) => {
                 message.success(`Card deleted!`);
+                // Call the callback to refresh the card data
+                if (onCardUpdated) {
+                    onCardUpdated(null);
+                }
             });
     };
 
     return (
         <List bordered className="card-info-list">
-            {condition_list.map(item => (
+            {sorted_list.map(item => (
                 <List.Item key={item.id} className="info-list-item">
                     <Text className="info-title">{item.condition}</Text>
                     <Text strong className="info-data">
                         <InputNumber
                             min={0}
                             value={item.quantity}
-                            onChange={value => updateQuantity(item.id, value)}
+                            onChange={(value) => {
+                                tempValueRef.current[item.id] = value; // Temporären Wert pro ID speichern
+                            }}
+                            onBlur={() => {
+                                const newValue = tempValueRef.current[item.id] ?? item.quantity; // Fallback auf item.quantity
+                                updateQuantity(item.id, newValue);
+                            }}
                             size="small"
                         />
                         <Button
@@ -75,6 +116,17 @@ export const CardDetails = () => {
         const userCard = await handleGetCard(id);
         setUserCards(userCard);
     }
+
+    const handleCardUpdated = (updatedCard) => {
+        // If updatedCard is null (card was deleted) or the structure has changed,
+        // fetch the entire card data again
+        if (!updatedCard) {
+            getCard();
+        } else {
+            // Otherwise, directly update the state with the new data
+            setUserCards(updatedCard);
+        }
+    };
 
     const addToCollection = () => {
         const values = form.getFieldsValue();
@@ -115,8 +167,6 @@ export const CardDetails = () => {
         );
     }
 
-    // Extrahiere die conditions aus userCards, falls vorhanden
-
     const ActionButtons = () => (
         <Flex gap="middle" vertical className="action-buttons">
             <Form form={form} layout="vertical" initialValues={{ quantity: 1, condition: 'Mint' }}>
@@ -126,13 +176,11 @@ export const CardDetails = () => {
                     </Form.Item>
                     <Form.Item name="condition" label="Condition" rules={[{ required: true }]}>
                         <Select style={{ width: 120 }}>
-                            <Option value="Mint">Mint</Option>
-                            <Option value="Near Mint">Near Mint</Option>
-                            <Option value="Excellent">Excellent</Option>
-                            <Option value="Good">Good</Option>
-                            <Option value="Light Played">Light Played</Option>
-                            <Option value="Played">Played</Option>
-                            <Option value="Poor">Poor</Option>
+                            {conditionOrder.map((item) => (
+                                <Option key={item} value={item}>
+                                    {item}
+                                </Option>
+                            ))}
                         </Select>
                     </Form.Item>
                 </Flex>
@@ -203,7 +251,12 @@ export const CardDetails = () => {
                     <ActionButtons />
                     <Divider />
                     <Title level={3} type='secondary'>COLLECTION</Title>
-                    {userCards && <CardCollectionTable condition_list={userCards.conditions} />}
+                    {userCards && (
+                        <CardCollectionTable
+                            condition_list={userCards.conditions}
+                            onCardUpdated={handleCardUpdated}
+                        />
+                    )}
                 </Flex>
             </Flex>
         </div>

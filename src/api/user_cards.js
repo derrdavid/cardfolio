@@ -115,4 +115,32 @@ const useGetCard = (token, card_api_id) => {
     });
 };
 
-export { useAddCard, useRemoveCard, useGetAllCards, useGetCard };
+const useUpdateCard = () => {
+    return useMutation({
+        mutationKey: ['user_cards'],
+        mutationFn: async ({ token, id, quantity }) => {
+            try {
+                const response = await fetch(`${BASE_URL}/cards/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        quantity: quantity
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw new Error(error?.message || "Add card failed");
+            }
+        }
+    });
+};
+
+export { useAddCard, useRemoveCard, useGetAllCards, useGetCard, useUpdateCard };

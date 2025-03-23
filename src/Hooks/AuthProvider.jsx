@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { useDeleteUser, useLogin, useRefresh, useRegister, useUpdateUser, useUpdateUserPassword } from "../api/auth";
-import { useAddCard, useRemoveCard, useGetAllCards, useGetCard } from "../api/user_cards";
+import { useAddCard, useRemoveCard, useGetAllCards, useGetCard, useUpdateCard } from "../api/user_cards";
 import { useQueryClient } from '@tanstack/react-query';
 
 const AuthContext = createContext(null);
@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     // Card mutations
     const addCardMutation = useAddCard();
     const removeCardMutation = useRemoveCard();
+    const updateCardMutation = useUpdateCard();
 
     // Card queries
     const { data: cards = [], refetch: refetchAllCards, isSuccess } = useGetAllCards(token);
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     const handleLogout = () => {
         setUser(null);
         setToken("");
-        // Cache leeren
+        // Clear cache
         queryClient.invalidateQueries(['user_cards']);
     };
 
@@ -106,8 +107,8 @@ export const AuthProvider = ({ children }) => {
     // Card handlers
     const handleAddCard = async ({ card_api_id, set_api_id, condition, quantity }) => {
         try {
-            // Karte hinzufügen
-            const newCard = await addCardMutation.mutateAsync({
+            // Add card
+            const response = await addCardMutation.mutateAsync({
                 token,
                 user,
                 card_api_id,
@@ -116,41 +117,122 @@ export const AuthProvider = ({ children }) => {
                 quantity
             });
 
-            queryClient.setQueryData(["cards"], (oldCards = []) =>
-                oldCards.map((card) =>
-                    card.id === newCard.id ? newCard : card
-                )
-            );
+            // Get the updated card data (assuming the API returns it)
+            const newCard = response[0] || response;
 
-            return newCard[0];
+            // Update the cache with the new card data
+            queryClient.setQueryData(["user_cards"], (oldCards = []) => {
+                // Check if the card exists in the cache
+                const existingCardIndex = oldCards.findIndex(card => card.card_api_id === card_api_id);
 
+                if (existingCardIndex >= 0) {
+                    // Update existing card
+                    return oldCards.map((card, index) =>
+                        index === existingCardIndex ? newCard : card
+                    );
+                } else {
+                    // Add new card
+                    return [...oldCards, newCard];
+                }
+            });
+
+            return newCard;
         } catch (error) {
             console.error("Failed to add card", error);
-            // Bei Fehler komplettes Refresh
-            refetchAllCards();
+            throw error;
+        }
+    }
+
+    const handleUpdateCard = async ({ id, quantity }) => {
+        try {
+            // Update card in database
+            const response = await updateCardMutation.mutateAsync({
+                token,
+                id,
+                quantity
+            });
+
+            // Get the updated card data (assuming the API returns it)
+            const updatedCard = response[0] || response;
+
+            // Update the cache
+            queryClient.setQueryData(["user_cards"], (oldCards = []) => {
+                return oldCards.map(card => {
+                    // Find the card in the collection that needs updating
+                    if (card.card_api_id === updatedCard.card_api_id) {
+                        // Update the conditions array with the new quantity
+                        const updatedConditions = card.conditions.map(cond =>
+                            cond.id === id ? { ...cond, quantity } : cond
+                        );
+
+                        // Return the updated card
+                        return {
+                            ...card,
+                            conditions: updatedConditions
+                        };
+                    }
+                    return card;
+                });
+            });
+
+            // Get the updated card for the UI
+            const updatedCardWithConditions = await handleGetCard(updatedCard.card_api_id);
+            return updatedCardWithConditions;
+        } catch (error) {
+            console.error("Failed to update card", error);
+            throw error;
         }
     }
 
     const handleRemoveCard = async ({ id }) => {
         try {
-            // Optimistic update - Karte aus lokalem State entfernen
-            queryClient.setQueryData(['user_cards'], (oldData) => {
-                return oldData?.filter(card => card.id !== id) || [];
+            // Find which card this condition belongs to before removing
+            let cardApiId = null;
+            let cardToUpdate = null;
+
+            queryClient.setQueryData(["user_cards"], (oldCards = []) => {
+                // Find the card that contains this condition
+                for (const card of oldCards) {
+                    const conditionIndex = card.conditions.findIndex(cond => cond.id === id);
+                    if (conditionIndex >= 0) {
+                        cardApiId = card.card_api_id;
+                        // Store a copy of the card for later use
+                        cardToUpdate = {
+                            ...card,
+                            conditions: card.conditions.filter(cond => cond.id !== id)
+                        };
+                        break;
+                    }
+                }
+
+                // If we found the card, update it in the cache
+                if (cardApiId) {
+                    return oldCards.map(card =>
+                        card.card_api_id === cardApiId ? cardToUpdate : card
+                    );
+                }
+
+                return oldCards;
             });
 
-            // API-Call zum Löschen
+            // Remove the card condition from the database
             await removeCardMutation.mutateAsync({ token, user, id });
 
+            // Return the updated card for the UI
+            if (cardApiId) {
+                return cardToUpdate;
+            }
+
+            return null;
         } catch (error) {
             console.error("Failed to remove card", error);
-            // Bei Fehler komplettes Refresh
-            refetchAllCards();
+            throw error;
         }
     }
 
     const handleGetCard = async (card_api_id) => {
         try {
-            return await cards.find(card => card.card_api_id === card_api_id);
+            return cards.find(card => card.card_api_id === card_api_id) || null;
         } catch (error) {
             console.error("Failed to get specific card", error);
             return null;
@@ -187,7 +269,8 @@ export const AuthProvider = ({ children }) => {
         handleAddCard,
         handleRemoveCard,
         handleGetCard,
-        refetchAllCards // Für manuelles Refresh, falls nötig
+        handleUpdateCard,
+        refetchAllCards // For manual refresh if needed
     };
 
     return (

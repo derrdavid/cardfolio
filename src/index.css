@@ -27,6 +27,7 @@ body {
   filter: invert(100%);
   mix-blend-mode: difference;
 }
+
 .navbar-title {
   font-weight: 600;
   font-size: 1.125rem;
@@ -370,7 +371,8 @@ h5.ant-typography {
 }
 
 .info-list-item:hover {
-  background-color: #f5f5f5; /* Subtiles Hellgrau für Hover */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Subtiles Hellgrau für Hover */
 }
 
 /* Hover-Effekt für den Löschen-Button */
@@ -379,61 +381,6 @@ h5.ant-typography {
 }
 
 .delete-button:hover {
-  color: #ff4d4f; /* Rot, um die Löschaktion hervorzuheben */
-}
-
-/* Animation für das Hinzufügen von Elementen */
-.item-enter {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.item-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms ease, transform 300ms ease;
-}
-
-/* Animation für das Entfernen von Elementen */
-.item-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.item-exit-active {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 300ms ease, transform 300ms ease;
-}
-
-.typewriter {
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  background-color: black;
-  margin-left: 2px;
-  animation: blink 1s step-end infinite;
-  vertical-align: text-bottom;
-}
-
-.char-fade-in {
-  display: inline-block;
-  animation: fadeIn 0.3s ease-in-out forwards;
-  opacity: 0;
-}
-
-@keyframes blink {
-  from, to { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  color: #ff4d4f;
+  /* Rot, um die Löschaktion hervorzuheben */
 }
