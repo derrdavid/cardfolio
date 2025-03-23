@@ -6,7 +6,7 @@ import { AuthProvider } from './Hooks/AuthProvider';
 function App() {
     return (
         <ConfigProvider theme={{
-            algorithm: theme.darkAlgorithm,
+            algorithm: theme.darkAlgorithm
         }}>
             <AuthProvider>
                 <RouterProvider router={router}>

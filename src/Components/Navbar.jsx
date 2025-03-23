@@ -8,7 +8,7 @@ import {
     SearchOutlined
 } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
-import Logo from '../assets/logo.png';
+import Logo from '../assets/logo.svg';
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -47,7 +47,7 @@ const Navbar = () => {
         {
             key: '3',
             icon: <OrderedListOutlined />,
-            label: <Link to='/collection'>MyCollection</Link>
+            label: <Link to='/collection'>Collection</Link>
         }
     ];
 
@@ -61,9 +61,6 @@ const Navbar = () => {
                             alt="Cardfolio Logo"
                             className="navbar-logo"
                         />
-                        <span className="navbar-title" style={{ color: token.colorPrimary }}>
-                            cardfolio
-                        </span>
                     </Flex>
                 </Link>
             </Flex>

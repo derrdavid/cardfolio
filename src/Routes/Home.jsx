@@ -11,7 +11,7 @@ const Home = () => {
 
   return (
     <div>
-      <Title level={1}>Hello {user.username} 👋</Title>
+      <Title className="anim-typewriter line-1" level={1}>Hello {user.username} 👋</Title>
       <Flex gap="middle" vertical>
         <Card className="card" title="Estimated Collection Value">
           <Title level={3}>Chart</Title>

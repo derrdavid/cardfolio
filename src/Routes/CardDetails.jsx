@@ -198,11 +198,11 @@ export const CardDetails = () => {
                 </div>
 
                 <Flex gap="middle" vertical className="card-info-container">
-                    <Title style={{ margin: 0, fontWeight: 200 }} level={5} type='secondary' >DETAILS</Title>
+                    <Title level={3} type='secondary' >DETAILS</Title>
                     <CardInfoList infoList={cardInfo} />
                     <ActionButtons />
                     <Divider />
-                    <Title style={{ margin: 0, fontWeight: 200 }} level={5} type='secondary'>COLLECTION</Title>
+                    <Title level={3} type='secondary'>COLLECTION</Title>
                     {userCards && <CardCollectionTable condition_list={userCards.conditions} />}
                 </Flex>
             </Flex>
